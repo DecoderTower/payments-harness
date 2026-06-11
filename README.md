@@ -34,12 +34,23 @@ Not included:
 /
 |-- AGENTS.md
 |-- README.md
+|-- .claude/
+|   |-- settings.json
+|   |-- hooks/
+|   |   |-- spec-guard.ps1
+|   |   `-- stop-gate.ps1
+|   `-- skills/
+|       |-- spec-flow/
+|       |-- implement-spec/
+|       `-- verify-flow/
 `-- docs/
     |-- decisions/
+    |   |-- TEMPLATE.md
     |   |-- 001-use-stripe-paymentintents-for-deposits.md
     |   |-- 002-enforce-server-side-idempotency.md
     |   `-- 003-configure-stripe-environment-via-config-only.md
     `-- specs/
+        |-- TEMPLATE.md
         |-- payment-platform-nfrs.md
         `-- stripe-deposit-processing.md
 ```

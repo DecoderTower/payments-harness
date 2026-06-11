@@ -1,0 +1,14 @@
+# .NET
+bin/
+obj/
+.vs/
+*.user
+
+# Local state
+*.db
+*.db-shm
+*.db-wal
+appsettings.*.local.json
+
+# Claude Code local overrides
+.claude/settings.local.json
