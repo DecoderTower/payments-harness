@@ -4,29 +4,11 @@ This repository is the starting point for a Stripe-backed deposit service. It is
 
 The goal is to capture a small but credible vertical slice. The repository is limited on purpose so the core concerns stay visible: request validation, idempotency, provider state mapping, reconciliation, and configuration-driven environment handling.
 
-## Why Deposits Only
+## Why Start With Deposits
 
-Deposits are enough to exercise real payment-system concerns without broadening the example into a full payment platform. Keeping the scope to deposits makes the repository easier to reason about while still reflecting real engineering constraints.
+A deposit is the smallest flow that still forces the real decisions: how a request becomes idempotent, how Stripe's PaymentIntent states map onto an internal status model, and how the system reconciles when those two views disagree. Everything in this repository exists to make those decisions visible and durable.
 
-Included:
-
-- create deposit
-- confirm deposit
-- retrieve deposit
-- reconcile latest provider state
-- durable internal status mapping
-- operational requirements such as idempotency, retries, and observability
-
-Not included:
-
-- refunds
-- withdrawals
-- disputes
-- subscriptions
-- payouts
-- partial capture
-- multi-PSP routing
-- broader wallet or ledger implementation
+Other payment flows build on the same foundations — the same status model, the same provider mapping, the same reconciliation loop. Starting narrow keeps that foundation honest before it has to support anything else.
 
 ## Current Repository Structure
 
