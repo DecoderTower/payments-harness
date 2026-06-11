@@ -35,8 +35,15 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+// WebApplicationFactory builds this host multiple times per test class (a throwaway
+// probe build plus the real TestServer build), each running this top-level code. The
+// probe builds all fall back to this same default connection string, so concurrent
+// test classes can race EnsureCreated()'s check-then-create against the same SQLite
+// file. Serializing here makes the second/third calls true no-ops instead of racing
+// on CREATE TABLE.
+lock (Program.DatabaseInitLock)
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
     db.Database.EnsureCreated();
 }
@@ -53,4 +60,7 @@ app.MapDepositEndpoints();
 
 app.Run();
 
-public partial class Program;
+public partial class Program
+{
+    private static readonly object DatabaseInitLock = new();
+}
