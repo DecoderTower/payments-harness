@@ -4,11 +4,14 @@ using Payments.Api.Middleware;
 using Payments.Api.Persistence;
 using Payments.Api.Providers;
 using Payments.Api.Services;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DepositOptions>(builder.Configuration.GetSection(DepositOptions.SectionName));
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+
+builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("PaymentsDb") ?? "Data Source=payments.db";
 builder.Services.AddDbContext<PaymentsDbContext>(options => options.UseSqlite(connectionString));
@@ -39,6 +42,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseExceptionHandler();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 app.MapDepositEndpoints();
 
