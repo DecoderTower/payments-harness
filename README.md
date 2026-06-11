@@ -6,9 +6,7 @@ The goal is to capture a small but credible vertical slice. The repository is li
 
 ## Why Start With Deposits
 
-A deposit is the smallest flow that still forces the real decisions: how a request becomes idempotent, how Stripe's PaymentIntent states map onto an internal status model, and how the system reconciles when those two views disagree. Everything in this repository exists to make those decisions visible and durable.
-
-Other payment flows build on the same foundations — the same status model, the same provider mapping, the same reconciliation loop. Starting narrow keeps that foundation honest before it has to support anything else.
+The repository starts with deposits, but the deposit flow isn't really the point — the harness around it is. Deposits are the concrete slice used to illustrate the harness.
 
 ## Current Repository Structure
 
