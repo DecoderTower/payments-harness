@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -File .claude/hooks/spec-guard.ps1"
+            "command": "node .claude/hooks/spec-guard.mjs"
           }
         ]
       }
@@ -51,10 +51,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -File .claude/hooks/stop-gate.ps1"
+            "command": "node .claude/hooks/stop-gate.mjs"
           }
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }

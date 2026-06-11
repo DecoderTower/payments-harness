@@ -37,8 +37,8 @@ Not included:
 |-- .claude/
 |   |-- settings.json
 |   |-- hooks/
-|   |   |-- spec-guard.ps1
-|   |   `-- stop-gate.ps1
+|   |   |-- spec-guard.mjs
+|   |   `-- stop-gate.mjs
 |   `-- skills/
 |       |-- spec-feature/
 |       |-- implement-spec/
