@@ -8,6 +8,32 @@ The goal is to capture a small but credible vertical slice. The repository is li
 
 The repository starts with deposits, but the deposit flow isn't really the point — the harness around it is. Deposits are the concrete slice used to illustrate the harness.
 
+## The Harness
+
+Part 1 of the series defines a harness as three things working together. Each artifact in this repository belongs to one of them.
+
+**Context** makes intent explicit and durable — not transient prompts or plans, but something versioned, shared, and visible to both agents and engineers:
+
+- `docs/specs/` — durable specs for the deposit flow and the cross-cutting NFRs
+- `docs/Architecture.md` — the component map and dependency rules the implementation must keep
+- `docs/decisions/` — decision records that survive across sessions
+- `AGENTS.md` — the operating guide an agent reads before changing anything
+
+**Constraints** shape how decisions can be expressed and make certain paths impossible:
+
+- the constraints in `AGENTS.md`: deposit-only scope, no invented lifecycle states, idempotency that cannot be bypassed
+- the internal status model and PaymentIntent mapping, which implementations follow rather than reinterpret
+- the dependency rules in `docs/Architecture.md`, enforced by ArchUnit tests in `tests/Payments.Api.ArchitectureTests` — a forbidden dependency fails the test suite instead of waiting for review
+- hooks and permission settings under `.claude/`, added alongside the implementation, that enforce some of these mechanically
+
+**Feedback loops** are the mechanisms that tell you when the system has drifted:
+
+- every acceptance scenario in a spec maps to a named test
+- a stop gate that runs the build and tests before an agent can claim work is done
+- end-to-end verification against a running service, including reconciliation with the provider
+
+Tactical context engineering improves local decisions within a session. The harness is what maintains coherence across sessions: intent stays durable, implementation is constrained, and drift is caught when it happens. The agent operates inside that harness — its output is shaped not just by what it sees, but by what the system will accept.
+
 ## Current Repository Structure
 
 ```text
@@ -68,32 +94,6 @@ That is not treated as a separate system. The repository assumes one Stripe inte
 - the same PaymentIntent-based provider mapping
 
 If the project later moves beyond sandbox or test credentials, the intended change is configuration only. The business logic and state model should not fork by environment.
-
-## The Harness
-
-Part 1 of the series defines a harness as three things working together. Each artifact in this repository belongs to one of them.
-
-**Context** makes intent explicit and durable — not transient prompts or plans, but something versioned, shared, and visible to both agents and engineers:
-
-- `docs/specs/` — durable specs for the deposit flow and the cross-cutting NFRs
-- `docs/Architecture.md` — the component map and dependency rules the implementation must keep
-- `docs/decisions/` — decision records that survive across sessions
-- `AGENTS.md` — the operating guide an agent reads before changing anything
-
-**Constraints** shape how decisions can be expressed and make certain paths impossible:
-
-- the constraints in `AGENTS.md`: deposit-only scope, no invented lifecycle states, idempotency that cannot be bypassed
-- the internal status model and PaymentIntent mapping, which implementations follow rather than reinterpret
-- the dependency rules in `docs/Architecture.md`, enforced by ArchUnit tests in `tests/Payments.Api.ArchitectureTests` — a forbidden dependency fails the test suite instead of waiting for review
-- hooks and permission settings under `.claude/`, added alongside the implementation, that enforce some of these mechanically
-
-**Feedback loops** are the mechanisms that tell you when the system has drifted:
-
-- every acceptance scenario in a spec maps to a named test
-- a stop gate that runs the build and tests before an agent can claim work is done
-- end-to-end verification against a running service, including reconciliation with the provider
-
-Tactical context engineering improves local decisions within a session. The harness is what maintains coherence across sessions: intent stays durable, implementation is constrained, and drift is caught when it happens. The agent operates inside that harness — its output is shaped not just by what it sees, but by what the system will accept.
 
 ## Why This Shape
 
