@@ -18,7 +18,7 @@ These documents carry the durable intent. They are versioned and shared; treat t
 - `tests/Payments.Api.Tests/` — xUnit tests
 - `docs/specs/` — functional and non-functional specifications (source of truth)
 - `docs/decisions/` — architecture decision records
-- `.claude/skills/` — repo workflow skills: `spec-flow`, `implement-spec`, `verify-flow`
+- `.claude/skills/` — repo workflow skills: `spec-feature`, `implement-spec`, `verify-feature`
 
 If a listed path does not exist yet, this document is ahead of the implementation. Create the missing piece to match this layout; do not invent an alternative structure.
 

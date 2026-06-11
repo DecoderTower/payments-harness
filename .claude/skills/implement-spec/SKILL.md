@@ -1,6 +1,6 @@
 ---
 name: implement-spec
-description: Implement a reviewed spec from docs/specs/ end to end, mapping every acceptance scenario to a named test. Use after spec-flow has produced a reviewed spec.
+description: Implement a reviewed spec from docs/specs/ end to end, mapping every acceptance scenario to a named test. Use after spec-feature has produced a reviewed spec.
 ---
 
 # implement-spec
@@ -22,7 +22,7 @@ Input: the path to one spec under `docs/specs/`.
 
 ## Constraints
 
-- Do not edit anything under `docs/`. If the spec is wrong or ambiguous, stop and ask — the spec changes deliberately via `spec-flow`, never as collateral damage of implementation.
+- Do not edit anything under `docs/`. If the spec is wrong or ambiguous, stop and ask — the spec changes deliberately via `spec-feature`, never as collateral damage of implementation.
 - No internal statuses beyond those in the spec's status model. No provider states leaked as internal statuses.
 - Idempotency, retry safety, timeout, and ambiguous-outcome behaviour follow the NFR spec exactly.
 - Secrets come from configuration (user-secrets locally). Never hardcode keys, never log `clientSecret` or payment instrument data.

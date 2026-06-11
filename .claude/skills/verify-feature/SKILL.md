@@ -1,9 +1,9 @@
 ---
-name: verify-flow
+name: verify-feature
 description: Prove a flow against a running service by driving its API end to end through the spec's acceptance scenarios. Use after implement-spec, or any time someone asks whether a flow actually works.
 ---
 
-# verify-flow
+# verify-feature
 
 This is a feedback loop: tests passing is necessary but not sufficient — this skill checks the running system still matches the spec, which is how drift gets caught.
 
@@ -21,6 +21,6 @@ Input: the path to one spec under `docs/specs/`.
 
 ## Constraints
 
-- Read-only with respect to the repo: no code or doc changes. Findings go to the user; fixes go through `implement-spec` or `spec-flow`.
+- Read-only with respect to the repo: no code or doc changes. Findings go to the user; fixes go through `implement-spec` or `spec-feature`.
 - Never print or log `clientSecret`, API keys, or payment instrument details.
 - When using real Stripe test mode, use Stripe's documented test payment methods (e.g. `pm_card_visa`); never raw card numbers.

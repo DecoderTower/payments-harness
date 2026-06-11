@@ -1,9 +1,9 @@
 ---
-name: spec-flow
+name: spec-feature
 description: Turn the intent for a new or changed business flow into a durable spec and decision records under docs/. Use whenever behaviour is being added or changed — intent changes in the context first, then in the code.
 ---
 
-# spec-flow
+# spec-feature
 
 This is the Context component of the harness: moving from plans to durable specs. The output is documents, never code.
 

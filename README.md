@@ -40,9 +40,9 @@ Not included:
 |   |   |-- spec-guard.ps1
 |   |   `-- stop-gate.ps1
 |   `-- skills/
-|       |-- spec-flow/
+|       |-- spec-feature/
 |       |-- implement-spec/
-|       `-- verify-flow/
+|       `-- verify-feature/
 `-- docs/
     |-- decisions/
     |   |-- TEMPLATE.md
