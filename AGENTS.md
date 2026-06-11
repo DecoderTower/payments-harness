@@ -8,15 +8,19 @@ These documents carry the durable intent. They are versioned and shared; treat t
 
 - `docs/specs/stripe-deposit-processing.md`
 - `docs/specs/payment-platform-nfrs.md`
+- `docs/Architecture.md`
 - `docs/decisions/001-use-stripe-paymentintents-for-deposits.md`
 - `docs/decisions/002-enforce-server-side-idempotency.md`
 - `docs/decisions/003-configure-stripe-environment-via-config-only.md`
+- `docs/decisions/004-enforce-architecture-rules-with-archunit-tests.md`
 
 ## Project layout
 
 - `src/Payments.Api/` — ASP.NET Core minimal API service
 - `tests/Payments.Api.Tests/` — xUnit tests
+- `tests/Payments.Api.ArchitectureTests/` — ArchUnitNET tests enforcing `docs/Architecture.md`
 - `docs/specs/` — functional and non-functional specifications (source of truth)
+- `docs/Architecture.md` — component map and enforced dependency rules
 - `docs/decisions/` — architecture decision records
 - `.claude/skills/` — repo workflow skills: `spec-feature`, `implement-spec`, `verify-feature`
 
@@ -60,3 +64,4 @@ These rules make certain paths impossible. Some are enforced mechanically by hoo
 - Do not change retry or ambiguous-outcome behaviour without updating `docs/specs/payment-platform-nfrs.md`.
 - Keep Stripe environment handling configuration-driven. No separate demo, test-only, or live-only business logic paths.
 - Preserve the PaymentIntent-based provider model unless a new decision record explicitly changes it.
+- Respect the dependency rules in `docs/Architecture.md`. They are enforced by `tests/Payments.Api.ArchitectureTests`; a structural change starts with that document and a decision record, then the matching test, then the code.

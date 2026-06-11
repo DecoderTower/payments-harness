@@ -34,6 +34,7 @@ Not included:
 /
 |-- AGENTS.md
 |-- README.md
+|-- payments-harness.slnx
 |-- .claude/
 |   |-- settings.json
 |   |-- hooks/
@@ -43,25 +44,34 @@ Not included:
 |       |-- spec-feature/
 |       |-- implement-spec/
 |       `-- verify-feature/
-`-- docs/
-    |-- decisions/
-    |   |-- TEMPLATE.md
-    |   |-- 001-use-stripe-paymentintents-for-deposits.md
-    |   |-- 002-enforce-server-side-idempotency.md
-    |   `-- 003-configure-stripe-environment-via-config-only.md
-    `-- specs/
-        |-- TEMPLATE.md
-        |-- payment-platform-nfrs.md
-        `-- stripe-deposit-processing.md
+|-- docs/
+|   |-- Architecture.md
+|   |-- decisions/
+|   |   |-- TEMPLATE.md
+|   |   |-- 001-use-stripe-paymentintents-for-deposits.md
+|   |   |-- 002-enforce-server-side-idempotency.md
+|   |   |-- 003-configure-stripe-environment-via-config-only.md
+|   |   `-- 004-enforce-architecture-rules-with-archunit-tests.md
+|   `-- specs/
+|       |-- TEMPLATE.md
+|       |-- payment-platform-nfrs.md
+|       `-- stripe-deposit-processing.md
+|-- src/
+|   `-- Payments.Api/
+`-- tests/
+    |-- Payments.Api.Tests/
+    `-- Payments.Api.ArchitectureTests/
 ```
 
-This repository currently contains durable context first. Application code, tests, and architecture documents are intentionally not added yet.
+The repository started as durable context only; the deposit slice in `src/` and `tests/` was implemented against that context afterwards.
 
 ## How the Documents Work Together
 
 `docs/specs/stripe-deposit-processing.md` is the main functional specification for the deposit lifecycle. It defines the API expectations, the internal status model, the mapping from Stripe PaymentIntent states, and the acceptance scenarios.
 
 `docs/specs/payment-platform-nfrs.md` captures the cross-cutting behavioural requirements that should remain stable as implementation begins, including idempotency, retries, timeout handling, ambiguous outcomes, durability, observability, and monetary handling.
+
+`docs/Architecture.md` describes the component structure of the service and the dependency rules between its parts. The rules are enforced mechanically by the architecture tests in `tests/Payments.Api.ArchitectureTests`.
 
 `docs/decisions/` contains concise architectural decisions that future implementation work should inherit unless they are explicitly replaced.
 
@@ -86,6 +96,7 @@ Part 1 of the series defines a harness as three things working together. Each ar
 **Context** makes intent explicit and durable — not transient prompts or plans, but something versioned, shared, and visible to both agents and engineers:
 
 - `docs/specs/` — durable specs for the deposit flow and the cross-cutting NFRs
+- `docs/Architecture.md` — the component map and dependency rules the implementation must keep
 - `docs/decisions/` — decision records that survive across sessions
 - `AGENTS.md` — the operating guide an agent reads before changing anything
 
@@ -93,6 +104,7 @@ Part 1 of the series defines a harness as three things working together. Each ar
 
 - the constraints in `AGENTS.md`: deposit-only scope, no invented lifecycle states, idempotency that cannot be bypassed
 - the internal status model and PaymentIntent mapping, which implementations follow rather than reinterpret
+- the dependency rules in `docs/Architecture.md`, enforced by ArchUnit tests in `tests/Payments.Api.ArchitectureTests` — a forbidden dependency fails the test suite instead of waiting for review
 - hooks and permission settings under `.claude/`, added alongside the implementation, that enforce some of these mechanically
 
 **Feedback loops** are the mechanisms that tell you when the system has drifted:
