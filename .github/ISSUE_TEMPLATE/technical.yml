@@ -1,6 +1,5 @@
 name: Technical change
 description: A change to how the service is built, stored, released, or run, with no change to specified behaviour.
-labels: ["stage:triage"]
 body:
   - type: textarea
     id: change

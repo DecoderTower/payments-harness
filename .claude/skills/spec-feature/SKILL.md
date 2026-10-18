@@ -7,11 +7,11 @@ description: Requirements phase — turn the intent for a new or changed busines
 
 This is the Requirements phase of the factory (`docs/Factory.md`) and the Context component of the harness: moving from plans to durable specs. The output is documents, never code.
 
-Input: an issue number at `stage:requirements`, or the user's description of the intent.
+Input: an issue number whose card is in Requirements, or the user's description of the intent.
 
 ## Steps
 
-1. Read the context list in `AGENTS.md`, then read `docs/specs/stripe-deposit-processing.md` for the house style and `docs/specs/payment-platform-nfrs.md` for the cross-cutting requirements every flow inherits. When working from an issue, read it with `gh issue view <n> --comments` and confirm it carries `stage:requirements`.
+1. Read the context list in `AGENTS.md`, then read `docs/specs/stripe-deposit-processing.md` for the house style and `docs/specs/payment-platform-nfrs.md` for the cross-cutting requirements every flow inherits. When working from an issue, read it with `gh issue view <n> --comments` and confirm its card is in **Requirements** on the project board (see `AGENTS.md` → Commands).
 2. Interview the user about the flow. Cover, in order:
    - what the flow is and what triggers it
    - in scope / out of scope (push back to keep scope narrow — out-of-scope bullets are scope control)

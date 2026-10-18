@@ -39,7 +39,8 @@ If a listed path does not exist yet, this document is ahead of the implementatio
 - Build: `dotnet build`
 - Test: `dotnet test`
 - Run: `dotnet run --project src/Payments.Api`
-- Harness tests: `node --test .claude/hooks/*.test.mjs` — run after any change under `.claude/`
+- Harness tests: `node --test .claude/hooks/*.test.mjs .github/scripts/*.test.mjs` — run after any change under `.claude/` or `.github/scripts/`
+- An issue's stage (its card's column on the project board, ADR-007): `gh project item-list 1 --owner DecoderTower --format json --limit 200 --jq '.items[] | select(.content.number==<n>) | .status'`
 
 ## Configuration and secrets
 

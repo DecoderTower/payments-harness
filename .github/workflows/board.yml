@@ -1,0 +1,28 @@
+# Code approval moves a service change to Release on the project board (ADR-007).
+# Triggered by an event GitHub does raise — a merged PR — so nothing polls the board.
+name: Board
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Move merged service changes to Release
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Move referenced issues to Release
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: ${{ github.repository_owner }}
+          PROJECT_NUMBER: "1"
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node .github/scripts/board-release.mjs

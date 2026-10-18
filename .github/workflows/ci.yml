@@ -58,11 +58,15 @@ jobs:
                    .claude/hooks/spec-guard.mjs .claude/hooks/spec-guard.test.mjs \
                    .claude/hooks/harness-guard.mjs .claude/hooks/harness-guard.test.mjs \
                    .claude/hooks/stop-gate.mjs .claude/hooks/stop-gate.test.mjs \
-                   .claude/hooks/wiring.test.mjs; do
+                   .claude/hooks/wiring.test.mjs \
+                   .github/workflows/board.yml \
+                   .github/scripts/board-release.mjs .github/scripts/board-release.test.mjs; do
             [ -f "$f" ] || { echo "::error::$f is missing - harness files are removed only through a reviewed change (docs/Factory.md, rule 3)."; exit 1; }
           done
       - name: Hook tests
         run: node --test .claude/hooks/*.test.mjs
+      - name: Board automation tests
+        run: node --test .github/scripts/*.test.mjs
       - name: Decision record numbers are unique
         run: |
           duplicates=$(ls docs/decisions | grep -Eo '^[0-9]{3}' | sort | uniq -d)

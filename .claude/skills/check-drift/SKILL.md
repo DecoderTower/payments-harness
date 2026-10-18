@@ -19,13 +19,14 @@ This is the slow loop of the Maintenance phase (`docs/Factory.md`): a feedback l
    - every path in the `AGENTS.md` project layout exists, or is clearly ahead of the implementation
    - every mechanism marked "in place" in the `docs/Factory.md` enforcement table exists
    - the README repository structure matches the repository
+   - every open issue has a card on the project board, and no issue whose implementation PR has merged is still before Release (ADR-007)
 3. Rank the findings. A spec and code that disagree outrank documentation that is out of date.
 4. Check for an open issue already covering the top finding (`gh issue list --state open --search "Drift"`). If one exists, file nothing.
-5. Otherwise file one issue for the top finding with `gh issue create`, titled `Drift: <finding>`, labelled `stage:triage` like every new issue, and written in the shape of the matching template: a bug naming the violated FR or acceptance scenario when the code disagrees with a spec, a technical change otherwise. Include the evidence: files, lines, and the conflicting statements.
+5. Otherwise file one issue for the top finding with `gh issue create`, titled `Drift: <finding>` — the project adds it to Triage like every new issue — and written in the shape of the matching template: a bug naming the violated FR or acceptance scenario when the code disagrees with a spec, a technical change otherwise. Include the evidence: files, lines, and the conflicting statements.
 6. Report every finding in the session, ranked, noting which one was filed.
 
 ## Constraints
 
 - Read-only with respect to the repository: no commits, no fixes.
 - At most one issue per run. Never decide which side of a disagreement is right — the issue states both sides; the spec changes deliberately or the code is fixed, through the lifecycle.
-- Never change labels beyond the `stage:triage` every new issue starts with, and never close or comment on other issues.
+- Never move cards or change labels, and never close or comment on other issues.

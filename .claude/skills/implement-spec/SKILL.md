@@ -1,17 +1,17 @@
 ---
 name: implement-spec
-description: Implementation phase — build an issue at stage:build against its approved technical design, mapping every acceptance scenario to a named test, and open the PR. Use after design-change and a human approval.
+description: Implementation phase — build an issue whose card is in Build against its approved technical design, mapping every acceptance scenario to a named test, and open the PR. Use after design-change and a human approval.
 ---
 
 # implement-spec
 
 This is the Implementation phase of the factory (`docs/Factory.md`). The agent operates inside the harness: the spec defines what to build, the approved technical design defines its shape, the constraints define what the system will accept, and the feedback loops decide when it is done.
 
-Input: an issue number at `stage:build`.
+Input: an issue number whose card is in Build.
 
 ## Steps
 
-1. Confirm the issue carries `stage:build` (`gh issue view <n> --comments`). If it does not, stop: implementation has not been authorised.
+1. Confirm the issue's card is in **Build** on the project board (see `AGENTS.md` → Commands). If it is not, stop: implementation has not been authorised. Read the issue with `gh issue view <n> --comments`.
 2. Read the context list in `AGENTS.md`, the approved **Technical design** comment on the issue, the spec it builds on when behaviour changes, `docs/specs/payment-platform-nfrs.md`, and every decision record in `docs/decisions/`.
 3. Implement the technical design as approved. It is the plan; do not re-plan. A small deviation is recorded for the PR description. A design that cannot work as approved stops here and goes back to design, with the reason.
 4. Implement in `src/Payments.Api`, tests in `tests/Payments.Api.Tests`, per the layout in `AGENTS.md`. Every acceptance scenario gets a named test (e.g. `AS3_ReplayingSameCreateRequestReturnsOriginalDeposit`).
@@ -22,7 +22,7 @@ Input: an issue number at `stage:build`.
 ## Constraints
 
 - Do not edit anything under `docs/`. If the spec or design is wrong or ambiguous, stop and ask — they change deliberately through `spec-feature` and `design-change`, never as collateral damage of implementation.
-- Never merge, approve, change labels, publish releases, or deploy; code review and release end with a human.
+- Never merge, approve, move cards on the project board, publish releases, or deploy; code review and release end with a human.
 - Schema changes stay compatible with the previous release, so it can still be rolled back to.
 - No internal statuses beyond those in the spec's status model. No provider states leaked as internal statuses.
 - Idempotency, retry safety, timeout, and ambiguous-outcome behaviour follow the NFR spec exactly.

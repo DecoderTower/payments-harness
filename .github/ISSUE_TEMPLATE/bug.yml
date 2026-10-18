@@ -1,6 +1,5 @@
 name: Bug
 description: The service disagrees with its spec. Every bug names the requirement it violates.
-labels: ["stage:triage"]
 body:
   - type: dropdown
     id: spec
