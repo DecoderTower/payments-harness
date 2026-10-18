@@ -26,7 +26,7 @@ Input: an issue number at `stage:requirements`, or the user's description of the
 5. Derive the flow's runbook in `docs/runbooks/<flow>.md` from `docs/runbooks/TEMPLATE.md` and the spec's Operations section, including the section for operations agents. It ships with the spec so the flow is operable before it is first released.
 6. Update the out-of-scope lists of existing specs and `AGENTS.md` constraints if this flow changes what is allowed (e.g. the repo is no longer deposit-only).
 7. When working from an issue, commit on branch `issue-<n>/requirements` and open a PR referencing it (`Refs #<n>`).
-8. Stop for human review of the documents. A human merges the spec (Gate A) and authorises design; implementation begins only after design is approved.
+8. Stop for human review of the documents. A human merges the spec (spec approval) and authorises design; implementation begins only after design is approved.
 
 ## Constraints
 
