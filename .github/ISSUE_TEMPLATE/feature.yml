@@ -1,6 +1,5 @@
 name: Feature
 description: New or changed behaviour. Goes through a spec change before any code (docs/Factory.md).
-labels: ["stage:triage"]
 body:
   - type: textarea
     id: intent

@@ -40,9 +40,9 @@ The harness shapes a single change. The factory, described in `docs/Factory.md` 
 
 It runs with the lights on. Agents do the work in each phase; humans own every gate. A human ranks the backlog, merges the spec, approves the design before any code is written, reads the code before it merges, and promotes each release. A change is done when its release runs verified, not when it merges. The harness does not remove the human — it decides where the human's attention goes. Everything a machine can check runs deterministically in CI, so human attention is spent only on what it cannot check: intent, design, and maintainability.
 
-- work enters as a GitHub issue from a template, and its gate state is a `stage:*` label only a human can change
+- work enters as a GitHub issue from a template and lands on the project board; moving its card between columns is the gate decision, and only a human can move it
 - each agent phase has one skill: `triage-issue`, `spec-feature`, `design-change`, `implement-spec`, `verify-feature`, `review-change`
-- the permission settings deny agents the commands that would pass a gate: merge, review, close, and label changes
+- the permission settings deny agents the commands that would pass a gate: merge, review, close, and moving cards on the board
 - CI runs the build, tests, architecture tests, the hooks' own tests, and static analysis on every PR, checks that the PR links its issue and spec, and warns when a PR grows beyond what a human can read
 
 ## Current Repository Structure
@@ -75,7 +75,10 @@ It runs with the lights on. Agents do the work in each phase; humans own every g
 |   |-- pull_request_template.md
 |   |-- release.yml
 |   |-- ISSUE_TEMPLATE/
+|   |-- scripts/
+|   |   `-- board-release.mjs
 |   `-- workflows/
+|       |-- board.yml
 |       |-- ci.yml
 |       `-- codeql.yml
 |-- docs/

@@ -198,11 +198,11 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | Rule | Mechanism | Status |
 | --- | --- | --- |
 | 1 | `.claude/settings.json`: `gh` read, comment, and PR-create commands allowed; merge, review, close, issue edit, label, release, and raw API commands denied | in place |
-| 1 | `.claude/settings.json`: `gh project` reads allowed; moving, editing, or deleting cards, fields, and the project denied | to build (#29) |
+| 1 | `.claude/settings.json`: `gh project` reads allowed; moving, editing, or deleting cards, fields, and the project denied | in place |
 | 1, 3, 5 | Branch protection on `main` requiring code-owner review and passing CI checks, with agents opening PRs under an identity distinct from the reviewing human | to build |
 | 1, 10 | GitHub Releases published by a human; deployment to shared environments requires approval | to build |
 | 2, 4 | Issue templates and `.github/pull_request_template.md` | in place |
-| 1, 2, 4 | Project board: the built-in Status field carries each issue's stage (ADR-007); built-in workflows add new issues to Triage and close issues moved to Done | to build (#29) |
+| 1, 2, 4 | Project board: the built-in Status field carries each issue's stage (ADR-007); built-in workflows add new issues to Triage and close issues moved to Done | in place |
 | 2 | Project board view, cards ordered by priority | in place |
 | 2, 4 | CI link check (`.github/workflows/ci.yml`) | in place |
 | 3 | `.github/CODEOWNERS` covering durable context and harness configuration | in place |
@@ -218,5 +218,5 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 7 | CI check that agent configuration copies match the canonical copy | deferred until a second agent's configuration is committed |
 | 8 | Container image and configuration-only deployment | to build |
 | 9 | Nightly drift-check job with deduplication | to build |
-| 10 | CI moves an issue's card to Release when a human merges a service change; the issue closes when a human moves its card to Done | to build (#29) |
+| 10 | CI moves an issue's card to Release when a human merges a service change; the issue closes when a human moves its card to Done | in place |
 | 11 | Previous image redeployable; migration compatibility reviewed at code approval | to build |

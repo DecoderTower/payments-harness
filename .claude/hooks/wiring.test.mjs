@@ -40,6 +40,15 @@ test("every hook has its own test", () => {
   }
 });
 
+test("agents cannot move cards or change the project board (ADR-007)", () => {
+  const deny = settings.permissions?.deny ?? [];
+  for (const shell of ["Bash", "PowerShell"]) {
+    for (const command of ["item-edit", "item-add", "item-archive", "item-delete", "field-create", "field-delete", "edit", "delete"]) {
+      assert.ok(deny.includes(`${shell}(gh project ${command}:*)`), `${shell}(gh project ${command}:*) is not denied`);
+    }
+  }
+});
+
 test("agents are denied every command that passes a gate", () => {
   const deny = settings.permissions?.deny ?? [];
   for (const shell of ["Bash", "PowerShell"]) {
