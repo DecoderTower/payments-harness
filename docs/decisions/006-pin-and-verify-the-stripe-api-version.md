@@ -1,6 +1,6 @@
 # ADR 006: Pin and Verify the Stripe API Version
 
-- Status: Proposed
+- Status: Accepted
 
 ## Context
 

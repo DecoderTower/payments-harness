@@ -13,7 +13,7 @@ Input: an issue number.
 
 1. Confirm the issue's card is in **Design** on the project board (see `AGENTS.md` → Commands). If it is not, stop: the design phase has not been authorised.
 2. Read the context list in `AGENTS.md`, the issue and its comments, the merged spec when behaviour changes, every decision record in `docs/decisions/`, and `docs/Architecture.md`.
-3. Identify the architectural choices the change involves. For each one, put the options and a recommendation to the user — the choice is theirs — then draft a decision record from `docs/decisions/TEMPLATE.md`, numbered after the latest existing record. If the component structure or a dependency rule changes, update `docs/Architecture.md` in the same change.
+3. Identify the architectural choices the change involves. For each one, put the options and a recommendation to the user — the choice is theirs — then draft a decision record from `docs/decisions/TEMPLATE.md`, numbered after the latest existing record, with `Status: Accepted` — the human merge is the acceptance. If the component structure or a dependency rule changes, update `docs/Architecture.md` in the same change.
 4. Draft the technical design — one to two pages, the shape of the change rather than a line-by-line plan:
    - **Basis** — the issue, the spec FRs and acceptance scenarios, the decision records it follows
    - **Types** — new and changed types, each in its component per `docs/Architecture.md`

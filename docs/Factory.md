@@ -102,7 +102,7 @@ Releasing is separate from merging. A merge says the code is right; a release sa
 - **Releases.** A human publishes a GitHub Release with a semantic version tag (`vMAJOR.MINOR.PATCH`). Its notes are generated from the merged PRs it contains (`.github/release.yml`), and the candidate image for that commit is tagged with the version.
 - **Promotion — release approval.** A human promotes a released version to an environment. The deployment target is selected by configuration only, extending ADR-003 from the PSP to the deployment environment: the same image runs locally under Docker and in any cloud target, with environment-specific settings and secrets supplied externally. There is no environment-specific code path and no environment-specific build. Shared environments require an approval on the deployment itself.
 - **Done.** A change to the service is done when the release containing it is running in its target environment and verified there — health checks pass and the spec's acceptance scenarios hold against the deployed service. A change to documents or harness configuration only is done when merged.
-- **Rollback.** Rolling back is redeploying the previous released image. Schema changes ship as versioned migrations that stay compatible with the previous release — expand in one release, contract in a later one — so a rollback never needs a reverse migration. Moving from the current create-on-startup schema to migrations is itself a work item with its own decision record.
+- **Rollback.** Rolling back is redeploying the previous released image. Schema changes ship as versioned migrations that stay compatible with the previous release — expand in one release, contract in a later one — so a rollback never needs a reverse migration. The service applies pending migrations itself at startup (ADR-008).
 
 ### 10. Operations
 
@@ -219,4 +219,4 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 8 | Container image and configuration-only deployment | to build |
 | 9 | Nightly drift-check job with deduplication | to build |
 | 10 | CI moves an issue's card to Release when a human merges a service change; the issue closes when a human moves its card to Done | in place |
-| 11 | Previous image redeployable; migration compatibility reviewed at code approval | to build |
+| 11 | Migrations applied at startup and compatible with the previous release (ADR-008); compatibility and rollback verified at code approval | in place; previous image redeployable: to build with release images |

@@ -1,6 +1,8 @@
 # ADR NNN: <Decision Title>
 
-- Status: Proposed | Accepted | Superseded by ADR-NNN
+- Status: Accepted | Superseded by ADR-NNN
+
+<!-- A record is written as Accepted: the human merge of its PR is the acceptance, so a record on main is always in force. A rejected record is never merged. -->
 
 ## Context
 
