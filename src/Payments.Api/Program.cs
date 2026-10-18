@@ -35,17 +35,19 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+// The schema is owned by EF Core migrations, applied here on every start in every
+// environment (ADR-008). A failed migration throws, so the service does not start.
+//
 // WebApplicationFactory builds this host multiple times per test class (a throwaway
 // probe build plus the real TestServer build), each running this top-level code. The
 // probe builds all fall back to this same default connection string, so concurrent
-// test classes can race EnsureCreated()'s check-then-create against the same SQLite
-// file. Serializing here makes the second/third calls true no-ops instead of racing
-// on CREATE TABLE.
+// test classes would migrate the same SQLite file at once. Serializing here keeps the
+// in-process calls ordered; EF Core's migration lock covers separate processes.
 lock (Program.DatabaseInitLock)
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
 
 app.UseExceptionHandler();

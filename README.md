@@ -130,6 +130,21 @@ That is not treated as a separate system. The repository assumes one Stripe inte
 
 If the project later moves beyond sandbox or test credentials, the intended change is configuration only. The business logic and state model should not fork by environment.
 
+## Database Migrations
+
+The SQLite schema is owned by EF Core migrations in `src/Payments.Api/Persistence/Migrations`, and the service applies any pending migrations every time it starts, in every environment and in the tests (ADR-008). A failed migration stops the service from starting.
+
+To change the schema, change the model, then add a migration with the pinned tool:
+
+```sh
+dotnet tool restore
+dotnet ef migrations add <Name> --project src/Payments.Api --output-dir Persistence/Migrations --namespace Payments.Api.Persistence
+```
+
+Keep each migration compatible with the previous release (expand now, contract in a later release), so a rollback never needs a reverse migration. A model change without a migration fails `dotnet test`.
+
+A `payments.db` created before migrations — by the old `EnsureCreated()` startup — has no migration history, and the service fails on start with `table "Deposits" already exists`. Delete it and start again; that includes the one tests leave in `tests/Payments.Api.Tests/bin/`.
+
 ## Why This Shape
 
 This is a blog companion repository, but it is not meant to be a throwaway example. The intent is to start from durable context that a future implementation can follow directly:
