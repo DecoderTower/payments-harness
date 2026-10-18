@@ -12,7 +12,7 @@ Input: a PR number.
 ## Steps
 
 1. Read the context list in `AGENTS.md`, then the PR with `gh pr view <n>` and its diff with `gh pr diff <n>`.
-2. Read the linked issue, its approved technical design, the specs and decision records the PR references, and `docs/Architecture.md`.
+2. Read the linked issue, its approved technical design, the specs and decision records the PR references, and `docs/Architecture.md`. A dependency update PR has no issue or technical design; read the upgrade notes and advisories for the versions it moves between instead.
 3. Check the diff for:
    - deviations from the approved technical design that the PR description does not call out
    - acceptance scenarios without a named test, and tests that would pass vacuously
@@ -20,6 +20,7 @@ Input: a PR number.
    - NFR behaviour: idempotency, retries, timeouts, ambiguous outcomes, durability, observability, monetary handling
    - secrets, client secrets, or payment instrument data that could be logged or committed
    - code a future reader would struggle to maintain
+   - for a dependency update: breaking changes between the versions, the advisories it fixes and whether the CI vulnerable-package check clears, and any spec, decision record, or NFR that depends on the package (a Stripe SDK upgrade touches NFR-12 and ADR-001). An update that needs a spec or design change is reported as a blocker for a human to turn into an issue.
 4. Post one comment with `gh pr comment <n>`, headed **Agent review** (advisory — a human performs the final review):
    - specs and decision records the diff touches
    - findings, most severe first, each with file and line

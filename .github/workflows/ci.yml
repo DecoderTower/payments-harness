@@ -25,6 +25,15 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet restore
+      # Warning, not failure, until the packages already flagged are fixed through the
+      # factory (docs/Factory.md, Maintenance); then this becomes a failing check.
+      - name: Vulnerable packages
+        run: |
+          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then
+            echo "::warning::Vulnerable packages found - see this step's log. Dependency updates fix them through the factory (docs/Factory.md, Maintenance)."
+            { echo '### Vulnerable packages'; echo '```'; grep -E '^\s+>' vulnerable.txt | sort -u; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
       - run: dotnet build --no-restore --nologo
       # Includes tests/Payments.Api.ArchitectureTests (ADR-004).
       - run: dotnet test --no-build --nologo

@@ -114,7 +114,16 @@ Operability is a requirement of every flow, not an afterthought (NFR-13). Each s
 
 ### 11. Maintenance
 
-Dependency update PRs go through the same testing, security, and review phases as any other change. One scheduled slow loop runs nightly: a drift check across specs, tests, and code (`check-drift`). It opens at most one issue per run, deduplicated, and never pushes code. Further loops are added one at a time, each small and contained.
+**Dependency updates.** Dependabot opens PRs for version updates and for security updates. A human has decided once, here, that dependency updates skip intake, requirements, and design; they enter at implementation and go through every later phase:
+
+1. **Testing and security** — CI, including the vulnerable-package check, which shows whether the update clears the advisories it targets.
+2. **Agent review** — `review-change` reads the upgrade notes and breaking changes between the versions, the advisories fixed, and any spec, decision record, or NFR that depends on the package (a Stripe SDK upgrade touches NFR-12). The end-to-end check runs against the service built with the new versions.
+3. **Code review, Gate C** — a human reads the change and the agent review, and merges.
+4. **Release, Gate D** — the update ships in the next release, listed under "Dependency updates" in its notes.
+
+A dependency update that turns out to need a spec or design change stops there and becomes an issue at triage.
+
+One scheduled slow loop runs nightly: a drift check across specs, tests, and code (`check-drift`). It opens at most one issue per run, deduplicated, and never pushes code. Further loops are added one at a time, each small and contained.
 
 ## Working on an issue
 
@@ -158,6 +167,7 @@ Deterministic loops run on every PR in CI, independent of the agent and its conf
 - links: every PR references an issue, and every implementation PR references the spec it implements; dependency update PRs are exempt
 - size: changed lines in `src/` and `tests/` (excluding migrations) are reported, with a warning above 400 lines — a size warning is a prompt to split, not a failure
 - secret scanning with push protection, and dependency update PRs
+- vulnerable packages, including transitive ones: reported as a warning until the packages already flagged are fixed, then failing
 
 Agent-side loops run in the session: the stop gate (build and tests before an agent can claim done), the spec guard, and the permissions allowlist.
 
@@ -199,6 +209,7 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 4 | Release notes generated from merged PRs (`.github/release.yml`) | in place |
 | 5 | CI workflow running build, tests, and architecture tests (`.github/workflows/ci.yml`) | in place |
 | 5 | Static analysis (`.github/workflows/codeql.yml`) | in place |
+| 5 | Vulnerable-package check in CI | in place as a warning; failing once the flagged packages are fixed |
 | 5 | CI end-to-end script | to build |
 | 5 | Stop gate (agent-side) | in place |
 | 7 | CI check that agent configuration copies match the canonical copy | deferred until a second agent's configuration is committed |
