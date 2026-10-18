@@ -153,7 +153,8 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | Rule | Mechanism | Status |
 | --- | --- | --- |
 | 1 | Permissions allowlist: `gh issue view`, `gh issue comment`, `gh pr create`, `gh pr view` allowed; merge, close, and label edits absent | to build |
-| 1, 3 | Branch protection on `main` with required human review; `CODEOWNERS` covering durable context and harness configuration | to build |
+| 3 | `.github/CODEOWNERS` covering durable context and harness configuration | in place |
+| 1, 3 | Branch protection on `main` requiring code-owner review, with agents opening PRs under an identity distinct from the reviewing human | to build |
 | 2, 4 | PR template; CI link check | to build |
 | 3 | `spec-guard` hook asks before writes to `docs/specs` and `docs/decisions` | in place |
 | 4 | CI traceability check with per-spec scenario IDs | to build |
