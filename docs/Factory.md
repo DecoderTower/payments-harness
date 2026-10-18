@@ -129,6 +129,7 @@ One scheduled slow loop runs nightly: a drift check across specs, tests, and cod
 
 - **One branch per phase output.** Each PR comes from its own branch, named `issue-<n>/<phase>` — `issue-2/design`, `issue-2/build`. A PR serves exactly one issue.
 - **Parallel work.** Items in progress at the same time each get their own worktree, so no two agents share a working copy.
+- **Squash merges.** PRs merge by squash only, and the branch is deleted on merge: one commit on `main` per PR, titled by the PR and carrying its issue reference, so the history reads as the sequence of human-approved changes.
 - **Decision record numbers.** A record takes the next free number when it is drafted. If two open PRs claim the same number, the one merged second renumbers before it merges; CI fails while two records share a number.
 - **Issue references.** Service changes reference their issue (`Refs #n`); the issue stays open until the release containing the change is promoted. Changes to documents or harness configuration only close their issue on merge (`Closes #n`).
 - **Urgent fixes.** A human may skip Gates A and B for an urgent fix, as for any gate skip, and files the follow-up spec or design change as an issue. Gates C and D are never skipped.
