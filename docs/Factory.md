@@ -155,7 +155,9 @@ Review state is not duplicated on the board: an open spec, decision, or implemen
 - **Code approval.** A human reads the code and merges; the card moves to Release.
 - **Release approval.** A human publishes a release, promotes it to an environment, verifies it, and moves the card to Done, which closes the issue.
 
-A human may skip spec or design approval deliberately — for example, moving a dependency bump's card from Triage straight to Build. Code and release approval are never skipped. An agent can never skip or pass a gate. The card moves, merges, and releases are a human's record of each decision.
+A human may skip spec or design approval deliberately — for example, moving a dependency bump's card from Triage straight to Build. Code and release approval are never skipped. An agent can never skip or pass a gate.
+
+**Interim, until release mechanics exist.** There is no release to publish or promote yet (Enforcement rows 8 and 11), so a human may move a merged service change's card from Release to Done, and the issue closes. The change then ships in the first release. This exception ends when release mechanics are in place; that change removes this paragraph. The card moves, merges, and releases are a human's record of each decision.
 
 ## Feedback loops
 
