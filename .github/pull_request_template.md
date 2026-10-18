@@ -5,11 +5,13 @@ Refs #<!-- service changes: the issue closes when its release is promoted and ve
 
 ## Kind
 
-- [ ] Requirements — `docs/specs`
-- [ ] Design — `docs/decisions`, `docs/Architecture.md`
+<!-- Tick exactly one. -->
+
+- [ ] Requirements — a spec change (`docs/specs`, `docs/runbooks`)
+- [ ] Design — decision records (`docs/decisions`, `docs/Architecture.md`)
+- [ ] Implementation, changes behaviour — against a merged spec and an approved technical design; references the spec
+- [ ] Implementation, no behaviour change — migrations, build, release, dependencies; against a technical issue
 - [ ] Factory — `docs/Factory.md`, `AGENTS.md`, harness configuration
-- [ ] Implementation — against an approved technical design
-- [ ] Technical — no change to specified behaviour
 
 ## Specs and decisions
 

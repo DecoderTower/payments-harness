@@ -17,7 +17,7 @@ Input: an issue number at `stage:build`.
 4. Implement in `src/Payments.Api`, tests in `tests/Payments.Api.Tests`, per the layout in `AGENTS.md`. Every acceptance scenario gets a named test (e.g. `AS3_ReplayingSameCreateRequestReturnsOriginalDeposit`).
 5. All PSP access goes through the provider interface. Both implementations stay behaviourally equivalent: the real provider (`Stripe`) and the configuration-selected `Fake`. Tests run against the fake; the business-logic path is identical (ADR 003).
 6. Run `dotnet build` and `dotnet test` until green. The stop gate enforces this — work cannot be declared done while either is red.
-7. Open the PR from branch `issue-<n>/build` with `gh pr create`, following `.github/pull_request_template.md`: `Refs #<n>` (the issue closes when its release is promoted, not on merge), the technical design copied in, deviations, release and rollback notes, and the acceptance-scenario-to-test table with any scenario not covered called out explicitly rather than papered over.
+7. Open the PR from branch `issue-<n>/build` with `gh pr create`, following `.github/pull_request_template.md`: one Kind ticked — "Implementation, changes behaviour" when the issue went through requirements, "Implementation, no behaviour change" for a technical issue — `Refs #<n>` (the issue closes when its release is promoted, not on merge), the technical design copied in, deviations, release and rollback notes, and the acceptance-scenario-to-test table with any scenario not covered called out explicitly rather than papered over.
 
 ## Constraints
 
