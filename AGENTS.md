@@ -17,6 +17,7 @@ These documents carry the durable intent. They are versioned and shared; treat t
 - `docs/decisions/005-run-delivery-as-a-lights-on-software-factory.md`
 - `docs/decisions/006-pin-and-verify-the-stripe-api-version.md`
 - `docs/decisions/007-record-gate-decisions-on-the-project-board.md`
+- `docs/decisions/008-apply-ef-core-migrations-at-startup.md`
 
 ## Project layout
 

@@ -1,6 +1,6 @@
 # ADR 007: Record Gate Decisions on the Project Board
 
-- Status: Proposed
+- Status: Accepted
 
 ## Context
 

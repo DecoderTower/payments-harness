@@ -1,6 +1,6 @@
 # ADR 008: Apply EF Core Migrations at Startup
 
-- Status: Proposed
+- Status: Accepted
 
 ## Context
 
