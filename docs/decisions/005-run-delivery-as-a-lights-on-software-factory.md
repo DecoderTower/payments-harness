@@ -1,6 +1,6 @@
 # ADR 005: Run Delivery as a Lights-On Software Factory
 
-- Status: Accepted
+- Status: Accepted; gate state amended by ADR-007
 
 ## Context
 
