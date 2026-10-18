@@ -1,5 +1,10 @@
 # Maintenance phase (docs/Factory.md): dependency updates arrive as PRs and go
 # through the same testing, security, and code review as any other change.
+#
+# Updates are grouped up to a risk boundary: routine updates arrive together, but a
+# major version jump or a security fix is never batched, so it gets its own review
+# and can be rolled back on its own. Groups apply to version updates only; security
+# updates stay one PR per advisory.
 version: 2
 updates:
   - package-ecosystem: nuget
@@ -10,6 +15,12 @@ updates:
     # Release notes list these under "Dependency updates" (.github/release.yml).
     labels:
       - dependencies
+    groups:
+      nuget-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -17,3 +28,8 @@ updates:
     open-pull-requests-limit: 3
     labels:
       - dependencies
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
