@@ -41,7 +41,7 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
 | 8 | Code review | implementation PR | advisory agent review via `review-change`, then human approval | agent first, human final | in place |
 | 9 | Release | merged changes on `main` | candidate image per merge; semantic-versioned release with generated notes; promotion to an environment | deterministic build, human releases and promotes | partial: release notes configuration in place; images, versioning, promotion to build |
 | 10 | Operations | running service | health and readiness, NFR-6 events, runbooks, incident response, signals filed as issues | human, from the spec | partial: NFR-6 events |
-| 11 | Maintenance | dependencies, the codebase | dependency update PRs; nightly drift-check issue | agent, through the harness | partial: dependency updates in place; drift check to build |
+| 11 | Maintenance | dependencies, the codebase | dependency update PRs; nightly drift-check issue | agent, through the harness | partial: dependency updates and the `check-drift` skill in place; nightly schedule to build |
 
 ### 1. Intake & triage
 
@@ -114,7 +114,7 @@ The service exposes health and readiness endpoints and the lifecycle events requ
 
 ### 11. Maintenance
 
-Dependency update PRs go through the same testing, security, and review phases as any other change. One scheduled slow loop runs nightly: a drift check across specs, tests, and code. It opens at most one issue per run, deduplicated, and never pushes code. Further loops are added one at a time, each small and contained.
+Dependency update PRs go through the same testing, security, and review phases as any other change. One scheduled slow loop runs nightly: a drift check across specs, tests, and code (`check-drift`). It opens at most one issue per run, deduplicated, and never pushes code. Further loops are added one at a time, each small and contained.
 
 ## Working on an issue
 
@@ -193,8 +193,8 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 2, 4 | Projects board view | to build |
 | 2, 4 | CI link check (`.github/workflows/ci.yml`) | in place |
 | 3 | `.github/CODEOWNERS` covering durable context and harness configuration | in place |
-| 3 | `spec-guard` hook asks before writes to `docs/specs` and `docs/decisions` | in place |
-| 3, 5 | Hook tests (`.claude/hooks/*.test.mjs`) and unique decision record numbers, in CI | in place |
+| 3 | `spec-guard` hook asks before any file write to durable context or the harness; `harness-guard` asks before any shell command that would modify, move, or delete them (one shared list: `.claude/hooks/protected-paths.mjs`) | in place |
+| 3, 5 | Hook tests, a wiring test (every guard registered, every gate-passing command denied), a required-files check, and unique decision record numbers, in CI | in place |
 | 4 | CI traceability check with per-spec scenario IDs | to build |
 | 4 | Release notes generated from merged PRs (`.github/release.yml`) | in place |
 | 5 | CI workflow running build, tests, and architecture tests (`.github/workflows/ci.yml`) | in place |

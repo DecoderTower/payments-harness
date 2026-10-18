@@ -41,6 +41,17 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
+      # Removing a harness file takes a reviewed change to this list, not just a deletion.
+      - name: Harness files present
+        run: |
+          for f in .claude/settings.json \
+                   .claude/hooks/protected-paths.mjs \
+                   .claude/hooks/spec-guard.mjs .claude/hooks/spec-guard.test.mjs \
+                   .claude/hooks/harness-guard.mjs .claude/hooks/harness-guard.test.mjs \
+                   .claude/hooks/stop-gate.mjs .claude/hooks/stop-gate.test.mjs \
+                   .claude/hooks/wiring.test.mjs; do
+            [ -f "$f" ] || { echo "::error::$f is missing - harness files are removed only through a reviewed change (docs/Factory.md, rule 3)."; exit 1; }
+          done
       - name: Hook tests
         run: node --test .claude/hooks/*.test.mjs
       - name: Decision record numbers are unique

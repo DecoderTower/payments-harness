@@ -55,17 +55,19 @@ It runs with the lights on. Agents do the work in each phase; humans own every g
 |-- .claude/
 |   |-- settings.json
 |   |-- hooks/
+|   |   |-- protected-paths.mjs
 |   |   |-- spec-guard.mjs
-|   |   |-- spec-guard.test.mjs
+|   |   |-- harness-guard.mjs
 |   |   |-- stop-gate.mjs
-|   |   `-- stop-gate.test.mjs
+|   |   `-- *.test.mjs
 |   `-- skills/
 |       |-- triage-issue/
 |       |-- spec-feature/
 |       |-- design-change/
 |       |-- implement-spec/
 |       |-- verify-feature/
-|       `-- review-change/
+|       |-- review-change/
+|       `-- check-drift/
 |-- .github/
 |   |-- CODEOWNERS
 |   |-- dependabot.yml

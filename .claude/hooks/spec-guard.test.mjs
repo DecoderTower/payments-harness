@@ -27,15 +27,39 @@ test("asks for a repository-relative path", () => {
   assert.equal(guard("docs/specs/new-flow-processing.md")?.permissionDecision, "ask");
 });
 
+test("asks before writing the rest of the durable context", () => {
+  for (const path of ["/repo/docs/Architecture.md", "/repo/docs/Factory.md", "/repo/AGENTS.md"]) {
+    assert.equal(guard(path)?.permissionDecision, "ask", path);
+  }
+});
+
+test("asks before writing the harness itself", () => {
+  for (const path of [
+    "/repo/.claude/hooks/stop-gate.mjs",
+    "/repo/.claude/skills/implement-spec/SKILL.md",
+    "/repo/.claude/settings.json",
+    "/repo/.github/workflows/ci.yml",
+    "D:\\repo\\.claude\\worktrees\\factory\\.claude\\hooks\\spec-guard.mjs",
+  ]) {
+    assert.equal(guard(path)?.permissionDecision, "ask", path);
+  }
+});
+
 test("allows the templates", () => {
   assert.equal(guard("/repo/docs/specs/TEMPLATE.md"), null);
   assert.equal(guard("/repo/docs/decisions/TEMPLATE.md"), null);
 });
 
-test("allows code and other documents", () => {
-  assert.equal(guard("/repo/src/Payments.Api/Program.cs"), null);
-  assert.equal(guard("/repo/docs/Architecture.md"), null);
-  assert.equal(guard("/repo/notdocs/specs/x.md"), null);
+test("allows code, local settings, and other documents", () => {
+  for (const path of [
+    "/repo/src/Payments.Api/Program.cs",
+    "/repo/README.md",
+    "/repo/notdocs/specs/x.md",
+    "/repo/.claude/settings.local.json",
+    "D:\\repo\\.claude\\worktrees\\factory\\src\\Payments.Api\\Program.cs",
+  ]) {
+    assert.equal(guard(path), null, path);
+  }
 });
 
 test("allows a payload without a file path", () => {

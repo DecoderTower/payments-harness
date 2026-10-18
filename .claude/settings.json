@@ -81,6 +81,15 @@
             "command": "node .claude/hooks/spec-guard.mjs"
           }
         ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/harness-guard.mjs"
+          }
+        ]
       }
     ],
     "Stop": [
