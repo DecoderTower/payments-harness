@@ -7,8 +7,6 @@ description: Implement a reviewed spec from docs/specs/ end to end, mapping ever
 
 The agent operates inside the harness: the spec defines what to build, the constraints define what the system will accept, and the feedback loops decide when it is done.
 
-If the superpowers plugin is available, use its planning and TDD implementation workflow to execute the steps below. This skill supplies the inputs (the spec and the context list) and the definition of done; it does not replace the engineering process.
-
 Input: the path to one spec under `docs/specs/`.
 
 ## Steps
