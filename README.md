@@ -51,6 +51,7 @@ It runs with the lights on. Agents do the work in each phase; humans own every g
 /
 |-- AGENTS.md
 |-- README.md
+|-- Directory.Packages.props
 |-- payments-harness.slnx
 |-- .claude/
 |   |-- settings.json
