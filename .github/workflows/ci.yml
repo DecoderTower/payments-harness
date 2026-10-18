@@ -90,8 +90,13 @@ jobs:
             echo "::error::The PR must reference its issue (Closes #n or Refs #n) - docs/Factory.md rule 4."
             exit 1
           fi
-          if grep -Eq '^- \[[xX]\] Implementation' <<<"$BODY" && ! grep -q 'docs/specs/' <<<"$BODY"; then
-            echo "::error::An implementation PR must reference the spec it implements (docs/specs/...) - docs/Factory.md rule 4."
+          kinds=$(grep -Ec '^- \[[xX]\] (Requirements|Design|Implementation|Factory)' <<<"$BODY" || true)
+          if [ "$kinds" -ne 1 ]; then
+            echo "::error::Tick exactly one Kind in the PR description (found $kinds) - .github/pull_request_template.md."
+            exit 1
+          fi
+          if grep -Eq '^- \[[xX]\] Implementation, changes behaviour' <<<"$BODY" && ! grep -q 'docs/specs/' <<<"$BODY"; then
+            echo "::error::A behaviour-changing implementation PR must reference the spec it implements (docs/specs/...) - docs/Factory.md rule 4."
             exit 1
           fi
           echo "Links present."
