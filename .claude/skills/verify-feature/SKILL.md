@@ -5,9 +5,9 @@ description: Prove a flow against a running service by driving its API end to en
 
 # verify-feature
 
-This is a feedback loop: tests passing is necessary but not sufficient — this skill checks the running system still matches the spec, which is how drift gets caught.
+This is the Testing phase of the factory (`docs/Factory.md`) and a feedback loop: tests passing is necessary but not sufficient — this skill checks the running system still matches the spec, which is how drift gets caught.
 
-Input: the path to one spec under `docs/specs/`.
+Input: the path to one spec under `docs/specs/`, and optionally the number of the PR being verified.
 
 ## Steps
 
@@ -17,10 +17,10 @@ Input: the path to one spec under `docs/specs/`.
 4. Drive the API through each acceptance scenario in order with real HTTP requests, asserting status codes, response fields, and internal status transitions against the spec — including the negative scenarios (validation rejection, idempotency conflict).
 5. Check the service logs for the lifecycle events NFR-6 requires, with correlation fields present and no secrets leaked.
 6. Stop the service.
-7. Report scenario by scenario: pass/fail, with the observed evidence (ids, statuses, provider references). Failures are reported as found — never adjusted to fit.
+7. Report scenario by scenario: pass/fail, with the observed evidence (ids, statuses, provider references). Failures are reported as found — never adjusted to fit. When a PR number was given, post the report on the PR with `gh pr comment <n>`, headed **Verification**.
 
 ## Constraints
 
-- Read-only with respect to the repo: no code or doc changes. Findings go to the user; fixes go through `implement-spec` or `spec-feature`.
+- Read-only with respect to the repo: no code or doc changes. Findings go to the user and the PR; fixes go through `implement-spec` or `spec-feature`.
 - Never print or log `clientSecret`, API keys, or payment instrument details.
 - When using real Stripe test mode, use Stripe's documented test payment methods (e.g. `pm_card_visa`); never raw card numbers.

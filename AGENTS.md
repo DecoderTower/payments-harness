@@ -26,7 +26,7 @@ These documents carry the durable intent. They are versioned and shared; treat t
 - `docs/Factory.md` — delivery lifecycle phases, human gates, and the loops that run on every change
 - `docs/decisions/` — architecture decision records
 - `docs/runbooks/` — one runbook per flow spec, written from the spec
-- `.claude/skills/` — repo workflow skills: `spec-feature`, `implement-spec`, `verify-feature` (canonical copy)
+- `.claude/skills/` — one skill per agent phase (canonical copy): `triage-issue`, `spec-feature`, `design-change`, `implement-spec`, `verify-feature`, `review-change`
 - `.claude/hooks/` — harness hooks: `spec-guard`, `stop-gate` (canonical copy)
 - `.agents/`, `.codex/` — other agents' configuration, byte-identical copies of the canonical skills and hooks
 - `.github/` — issue and PR templates, `CODEOWNERS`, CI workflows

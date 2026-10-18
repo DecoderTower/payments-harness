@@ -30,14 +30,14 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
 
 | # | Phase | Input | Output | Owner | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Intake & triage | issue from a template | triage comment: classification, conflicts, suggested next stage | agent comments, human decides | templates in place; triage by hand |
+| 1 | Intake & triage | issue from a template | triage comment via `triage-issue`: classification, conflicts, suggested next stage | agent comments, human decides | in place |
 | 2 | Prioritisation | open issues | ranked board | human | to build (board) |
 | 3 | Requirements | issue at `stage:requirements` | spec PR (`Refs #n`) via `spec-feature` | agent drafts, human approves | in place |
-| 4 | Design | merged spec, or a technical issue, at `stage:design` | decision record PR where a choice is architectural; technical design posted on the issue | agent drafts, human approves | decision records in place; technical design to build |
+| 4 | Design | merged spec, or a technical issue, at `stage:design` | decision records where a choice is architectural; technical design posted on the issue; both via `design-change` | agent drafts, human approves | in place |
 | 5 | Implementation | issue at `stage:build` with its approved technical design | implementation PR (`Closes #n`) via `implement-spec` | agent | in place (agent-side stop gate) |
 | 6 | Testing | implementation PR | green CI loops; end-to-end report via `verify-feature` | deterministic, agent | partial: unit and architecture tests; CI, traceability, scripted end-to-end, non-functional to build |
 | 7 | Security | every PR, the repository | scan results; threat considerations in every spec | deterministic, human | to build |
-| 8 | Code review | implementation PR | advisory agent review, then human approval | agent first, human final | to build (agent review); human review in place |
+| 8 | Code review | implementation PR | advisory agent review via `review-change`, then human approval | agent first, human final | in place |
 | 9 | Release | merge to `main` | versioned container image and a deployment | deterministic | to build |
 | 10 | Operations | running service | health and readiness, NFR-6 events, runbooks, signals filed as issues | human, from the spec | partial: NFR-6 events |
 | 11 | Maintenance | dependencies, the codebase | dependency update PRs; nightly drift-check issue | agent, through the harness | to build |
@@ -163,7 +163,7 @@ This document is ahead of the implementation. Each mechanism below is either in 
 
 | Rule | Mechanism | Status |
 | --- | --- | --- |
-| 1 | Permissions allowlist: `gh issue view`, `gh issue comment`, `gh pr create`, `gh pr view` allowed; merge, close, and label edits absent | to build |
+| 1 | `.claude/settings.json`: `gh` read, comment, and PR-create commands allowed; merge, review, close, issue edit, label, and raw API commands denied | in place |
 | 1, 3 | Branch protection on `main` requiring code-owner review, with agents opening PRs under an identity distinct from the reviewing human | to build |
 | 2, 4 | Issue templates and `.github/pull_request_template.md` | in place |
 | 2, 4 | `stage:*` labels | in place |
