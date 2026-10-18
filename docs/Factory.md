@@ -133,6 +133,7 @@ One scheduled slow loop runs nightly: a drift check across specs, tests, and cod
 - **Decision record numbers.** A record takes the next free number when it is drafted. If two open PRs claim the same number, the one merged second renumbers before it merges; CI fails while two records share a number.
 - **Issue references.** Service changes reference their issue (`Refs #n`); the issue stays open until the release containing the change is promoted. Changes to documents or harness configuration only close their issue on merge (`Closes #n`).
 - **Urgent fixes.** A human may skip spec and design approval for an urgent fix, as for any gate skip, and files the follow-up spec or design change as an issue. Code and release approval are never skipped.
+- **Small changes.** For a small change to documents or harness configuration only, a human may skip triage and design. The agent makes the change directly on `issue-<n>/<phase>` and opens the PR with `Closes #n`, reusing the issue that prompted it or filing a minimal one without triage — the CI link check still requires the reference. The PR says the gates were skipped by the human's call. Code approval still applies, and service changes always go through the full lifecycle.
 
 ## Gates
 
@@ -154,7 +155,9 @@ Review state is not duplicated on the board: an open spec, decision, or implemen
 - **Code approval.** A human reads the code and merges; the card moves to Release.
 - **Release approval.** A human publishes a release, promotes it to an environment, verifies it, and moves the card to Done, which closes the issue.
 
-A human may skip spec or design approval deliberately — for example, moving a dependency bump's card from Triage straight to Build. Code and release approval are never skipped. An agent can never skip or pass a gate. The card moves, merges, and releases are a human's record of each decision.
+A human may skip spec or design approval deliberately — for example, moving a dependency bump's card from Triage straight to Build. Code and release approval are never skipped. An agent can never skip or pass a gate.
+
+**Interim, until release mechanics exist.** There is no release to publish or promote yet (Enforcement rows 8 and 11), so a human may move a merged service change's card from Release to Done, and the issue closes. The change then ships in the first release. This exception ends when release mechanics are in place; that change removes this paragraph. The card moves, merges, and releases are a human's record of each decision.
 
 ## Feedback loops
 
