@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
 
@@ -12,9 +13,22 @@ public class StripePaymentProvider : IPaymentProvider
     private readonly PaymentIntentService _paymentIntents;
     private readonly StripeOptions _settings;
 
-    public StripePaymentProvider(IOptions<StripeOptions> options)
+    /// <summary>The Stripe API version this build of Stripe.net is generated for (ADR-006).</summary>
+    public static string SdkApiVersion => StripeConfiguration.ApiVersion;
+
+    public StripePaymentProvider(IOptions<StripeOptions> options, ILogger<StripePaymentProvider> logger)
     {
         _settings = options.Value;
+
+        // NFR-12 / ADR-006: never run against a Stripe API version nobody recorded.
+        if (!string.Equals(_settings.ApiVersion, SdkApiVersion, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Stripe API version mismatch: configuration records '{_settings.ApiVersion}' but Stripe.net is built for " +
+                $"'{SdkApiVersion}'. Review the Stripe changelog and update Stripe:ApiVersion deliberately (ADR-006).");
+        }
+
+        logger.LogInformation("Stripe API version {StripeApiVersion}", SdkApiVersion);
 
         var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds) };
         var stripeClient = new StripeClient(_settings.ApiKey, httpClient: new SystemNetHttpClient(httpClient));

@@ -10,6 +10,12 @@ public class StripeOptions
 
     public string ApiKey { get; set; } = "";
 
+    /// <summary>
+    /// The Stripe API version chosen deliberately (NFR-12, ADR-006). Must equal the version
+    /// the Stripe.net SDK is built for; the Stripe provider refuses to start otherwise.
+    /// </summary>
+    public string ApiVersion { get; set; } = "";
+
     /// <summary>Total outbound request timeout for Stripe calls (NFR-3).</summary>
     public int TimeoutSeconds { get; set; } = 10;
 }
