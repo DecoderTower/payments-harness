@@ -133,6 +133,7 @@ One scheduled slow loop runs nightly: a drift check across specs, tests, and cod
 - **Decision record numbers.** A record takes the next free number when it is drafted. If two open PRs claim the same number, the one merged second renumbers before it merges; CI fails while two records share a number.
 - **Issue references.** Service changes reference their issue (`Refs #n`); the issue stays open until the release containing the change is promoted. Changes to documents or harness configuration only close their issue on merge (`Closes #n`).
 - **Urgent fixes.** A human may skip spec and design approval for an urgent fix, as for any gate skip, and files the follow-up spec or design change as an issue. Code and release approval are never skipped.
+- **Small changes.** For a small change to documents or harness configuration only, a human may skip triage and design. The agent makes the change directly on `issue-<n>/<phase>` and opens the PR with `Closes #n`, reusing the issue that prompted it or filing a minimal one without triage — the CI link check still requires the reference. The PR says the gates were skipped by the human's call. Code approval still applies, and service changes always go through the full lifecycle.
 
 ## Gates
 

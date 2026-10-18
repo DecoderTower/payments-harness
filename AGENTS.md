@@ -60,6 +60,16 @@ Changes move through the lifecycle phases in `docs/Factory.md`. Humans own the g
 6. Code review: open the PR from branch `issue-<n>/<phase>`, referencing the issue (`Refs #n` for service changes, `Closes #n` for document- or harness-only changes). An agent review is advisory; a human reads the code and merges.
 7. Release: a human publishes a release and promotes it to an environment. A service change is done when its release runs verified there, not when it merges.
 
+A small change to documents or harness configuration only may skip triage and design when a human says so; it still opens a PR with `Closes #n` (`docs/Factory.md` → Working on an issue).
+
+## Naming and vocabulary
+
+Everything written in this repository — documents, skills, issues, PRs, comments — uses one vocabulary, so it reads the same to every agent and every engineer.
+
+- Name lifecycle phases after the SDLC phases in `docs/Factory.md`: intake and triage, prioritisation, requirements, design, implementation, testing, security, code review, release, operations, maintenance. The one-to-two page shape of a change is the **technical design**. A term borrowed from elsewhere (such as "structure outline" or "station") is translated to these, not introduced alongside them.
+- Name things after what they mean. The human gates are **spec approval**, **design approval**, **code approval**, and **release approval**. Never introduce letter or number codes ("Gate A", "Stage 2") for a concept a reader has to remember.
+- The harness has three parts: **Context** (durable, versioned intent), **Constraints** (paths the system will not accept), and **Feedback loops** (mechanisms that report drift). Its failure mode is **drift**; its goal is **coherence**. The provider abstraction is the **PSP** (payment service provider) boundary.
+
 ## Feedback loops — definition of done
 
 These are the mechanisms that catch drift. Work is not done until every loop is green.
