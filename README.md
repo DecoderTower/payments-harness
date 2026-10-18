@@ -87,6 +87,8 @@ It runs with the lights on. Agents do the work in each phase; humans own every g
 |   |   |-- 003-configure-stripe-environment-via-config-only.md
 |   |   |-- 004-enforce-architecture-rules-with-archunit-tests.md
 |   |   `-- 005-run-delivery-as-a-lights-on-software-factory.md
+|   |-- runbooks/
+|   |   `-- TEMPLATE.md
 |   `-- specs/
 |       |-- TEMPLATE.md
 |       |-- payment-platform-nfrs.md

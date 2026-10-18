@@ -25,7 +25,7 @@ These documents carry the durable intent. They are versioned and shared; treat t
 - `docs/Architecture.md` — component map and enforced dependency rules
 - `docs/Factory.md` — delivery lifecycle phases, human gates, and the loops that run on every change
 - `docs/decisions/` — architecture decision records
-- `docs/runbooks/` — one runbook per flow spec, written from the spec
+- `docs/runbooks/` — one runbook per flow, derived from its spec's Operations section (NFR-13), with a section for operations agents
 - `.claude/skills/` — one skill per agent phase (canonical copy): `triage-issue`, `spec-feature`, `design-change`, `implement-spec`, `verify-feature`, `review-change`, `check-drift`
 - `.claude/hooks/` — harness hooks and their tests (canonical copy): `spec-guard`, `harness-guard`, `stop-gate`
 - `.github/` — issue and PR templates, `CODEOWNERS`, CI workflows

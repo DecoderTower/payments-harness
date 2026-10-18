@@ -15,6 +15,7 @@ This is the slow loop of the Maintenance phase (`docs/Factory.md`): a feedback l
    - the internal status model in each spec matches the status enum in the code, in both directions, and the provider-status mapping table matches the mapper
    - every operation in a spec's API expectations exists as an endpoint, and no endpoint exists that no spec describes
    - each decision record's consequences still hold in the code
+   - every flow spec has an Operations section and every flow a runbook derived from it, and the two agree (NFR-13)
    - every path in the `AGENTS.md` project layout exists, or is clearly ahead of the implementation
    - every mechanism marked "in place" in the `docs/Factory.md` enforcement table exists
    - the README repository structure matches the repository

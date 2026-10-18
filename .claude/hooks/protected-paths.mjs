@@ -2,7 +2,7 @@
 // deliberately, through human review, never as collateral damage of a task.
 // One list, shared by spec-guard (file writes) and harness-guard (shell commands).
 
-const PATHS = String.raw`docs[\\/](?:specs|decisions)(?![\w-])|docs[\\/](?:Architecture|Factory)\.md|AGENTS\.md|\.claude[\\/](?:hooks|skills)(?![\w-])|\.claude[\\/]settings\.json|\.github(?![\w-])`;
+const PATHS = String.raw`docs[\\/](?:specs|decisions|runbooks)(?![\w-])|docs[\\/](?:Architecture|Factory)\.md|AGENTS\.md|\.claude[\\/](?:hooks|skills)(?![\w-])|\.claude[\\/]settings\.json|\.github(?![\w-])`;
 
 // Anywhere in a command line.
 export const PROTECTED_IN_COMMAND = new RegExp(PATHS, "i");

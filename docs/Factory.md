@@ -40,7 +40,7 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
 | 7 | Security | every PR, the repository | scan results; security considerations in every spec | deterministic, human | partial: secret scanning with push protection, static analysis, dependency updates, and spec template section in place; deposit spec section to add |
 | 8 | Code review | implementation PR | advisory agent review via `review-change`, then human approval | agent first, human final | in place |
 | 9 | Release | merged changes on `main` | candidate image per merge; semantic-versioned release with generated notes; promotion to an environment | deterministic build, human releases and promotes | partial: release notes configuration in place; images, versioning, promotion to build |
-| 10 | Operations | running service | health and readiness, NFR-6 events, runbooks, incident response, signals filed as issues | human, from the spec | partial: NFR-6 events |
+| 10 | Operations | running service | liveness and readiness, NFR-6 events, runbooks derived from each spec's Operations section (NFR-13), incident response, signals filed as issues | human, from the spec; operations agents read-only | partial: NFR-6 events, NFR-13, and the runbook template in place; deposit Operations section, runbook, and health endpoints to add |
 | 11 | Maintenance | dependencies, the codebase | dependency update PRs; nightly drift-check issue | agent, through the harness | partial: dependency updates and the `check-drift` skill in place; nightly schedule to build |
 
 ### 1. Intake & triage
@@ -106,9 +106,9 @@ Releasing is separate from merging. A merge says the code is right; a release sa
 
 ### 10. Operations
 
-The service exposes health and readiness endpoints and the lifecycle events required by NFR-6. Each flow spec gets a runbook in `docs/runbooks/`, written from the spec rather than the code, so that a human can reason about an incident from durable context instead of from code nobody has read.
+Operability is a requirement of every flow, not an afterthought (NFR-13). Each spec has an Operations section: the failure modes the flow can enter, how each is detected, and the safe response through the flow's own operations. Each flow has a runbook in `docs/runbooks/` derived from that section, written from the spec rather than the code, so that a human can reason about an incident from durable context instead of from code nobody has read. Infrastructure as code defines what the environment is; the runbook defines what to do when the flow inside it goes wrong. The service exposes liveness and readiness endpoints and the lifecycle events required by NFR-6.
 
-**Incidents.** A human responds, working from the runbook; agents may help investigate read-only — logs, reconciliation, the code — but change nothing. Service is restored by rollback first, fixed second. Every incident produces an issue: a bug naming the FR or NFR that was violated, or a feature if no requirement covered the behaviour. The postmortem is recorded on that issue, and it ends with the spec, a decision record, or the runbook changed through the lifecycle — or with a recorded reason why none needs to change.
+**Incidents.** A human responds, working from the runbook. An operations agent may help investigate, strictly within the runbook's section for operations agents: the read-only checks it lists, nothing else. It reports the matching failure mode and evidence on the incident issue, and changes nothing. Service is restored by rollback first, fixed second. Every incident produces an issue: a bug naming the FR or NFR that was violated, or a feature if no requirement covered the behaviour. The postmortem is recorded on that issue, and it ends with the spec, a decision record, or the runbook changed through the lifecycle — or with a recorded reason why none needs to change.
 
 **Signals.** Failed health checks, alerts, and reconciliation mismatches may be filed back into intake. A signal produces at most one open issue, and a filed issue enters at triage like any other.
 
@@ -169,7 +169,7 @@ Each rule is enforced by the mechanism named in [Enforcement](#enforcement).
 
 1. **Agents never pass a gate.** Agents do not merge PRs, close issues, change `stage:*` labels, publish releases, or promote deployments.
 2. **Nothing is built from issue text.** Implementation starts only from an approved technical design, built on a merged spec when behaviour changes.
-3. **Durable context changes only through human review.** Changes to `docs/specs`, `docs/decisions`, `docs/Architecture.md`, `docs/Factory.md`, `AGENTS.md`, and the harness configuration require a human approval.
+3. **Durable context changes only through human review.** Changes to `docs/specs`, `docs/decisions`, `docs/runbooks`, `docs/Architecture.md`, `docs/Factory.md`, `AGENTS.md`, and the harness configuration require a human approval.
 4. **Every change is traceable.** Issue → spec PR → FR and acceptance scenario → named test → implementation PR → release.
 5. **The deterministic loops run outside the agent.** CI runs them on every PR, and they must pass before a merge; an agent's local configuration cannot switch them off.
 6. **Technical designs are not committed.** They live on the issue and the PR; specs and decision records are the only durable statements of intent.

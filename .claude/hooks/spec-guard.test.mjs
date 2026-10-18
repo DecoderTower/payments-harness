@@ -28,7 +28,7 @@ test("asks for a repository-relative path", () => {
 });
 
 test("asks before writing the rest of the durable context", () => {
-  for (const path of ["/repo/docs/Architecture.md", "/repo/docs/Factory.md", "/repo/AGENTS.md"]) {
+  for (const path of ["/repo/docs/Architecture.md", "/repo/docs/Factory.md", "/repo/AGENTS.md", "/repo/docs/runbooks/deposit.md"]) {
     assert.equal(guard(path)?.permissionDecision, "ask", path);
   }
 });
@@ -48,6 +48,7 @@ test("asks before writing the harness itself", () => {
 test("allows the templates", () => {
   assert.equal(guard("/repo/docs/specs/TEMPLATE.md"), null);
   assert.equal(guard("/repo/docs/decisions/TEMPLATE.md"), null);
+  assert.equal(guard("/repo/docs/runbooks/TEMPLATE.md"), null);
 });
 
 test("allows code, local settings, and other documents", () => {
