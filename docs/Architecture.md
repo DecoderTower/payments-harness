@@ -29,7 +29,7 @@ If the architecture needs to change, the intent changes here first — update th
 | --- | --- | --- |
 | `Domain` | Deposit aggregate, internal status model, PaymentIntent status mapping | nothing (BCL only) |
 | `Contracts` | HTTP request/response DTOs | `Domain` |
-| `Persistence` | EF Core `DbContext` and schema | `Domain`, EF Core |
+| `Persistence` | EF Core `DbContext`, schema, and the migrations that evolve it (ADR-008) | `Domain`, EF Core |
 | `Providers` | PSP abstraction (`IPaymentProvider`) with Stripe and Fake implementations | Stripe SDK only, and only inside the Stripe implementation |
 | `Services` | Deposit business logic — the single path both providers flow through | `Domain`, `Persistence`, `Providers`, EF Core |
 | `Endpoints` | Minimal API surface; maps DTOs to service commands | `Contracts`, `Services`, ASP.NET Core |
