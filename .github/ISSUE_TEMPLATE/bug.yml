@@ -1,0 +1,39 @@
+name: Bug
+description: The service disagrees with its spec. Every bug names the requirement it violates.
+labels: ["stage:triage"]
+body:
+  - type: dropdown
+    id: spec
+    attributes:
+      label: Spec
+      options:
+        - docs/specs/stripe-deposit-processing.md
+        - docs/specs/payment-platform-nfrs.md
+    validations:
+      required: true
+  - type: input
+    id: requirement
+    attributes:
+      label: Requirement violated
+      description: The FR, NFR, or acceptance scenario the behaviour contradicts, e.g. FR-3 or AS-4. If no requirement covers it, file a Feature instead — the spec is missing, not the code.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected (per the spec)
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Requests, provider (Fake or Stripe test mode), deposit ids, correlation ids. Never paste API keys, client secrets, or payment instrument details.
+    validations:
+      required: true

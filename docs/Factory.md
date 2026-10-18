@@ -56,7 +56,7 @@ The factory runs with the lights on (ADR-005). Agents do the work at every stati
 
 ### 1. Intake
 
-Work enters only as a GitHub issue created from a template in `.github/ISSUE_TEMPLATE/`. The feature template asks for intent, motivation, out-of-scope items, and the spec it touches. The bug template asks which FR or acceptance scenario is violated, so every bug is stated as a disagreement between spec and code.
+Work enters only as a GitHub issue created from a template in `.github/ISSUE_TEMPLATE/`. The feature template asks for intent, motivation, out-of-scope items, and the spec it touches. The bug template asks which FR or acceptance scenario is violated, so every bug is stated as a disagreement between spec and code. The technical template covers changes to how the service is built, stored, released, or run, and requires confirming that no specified behaviour changes. Blank issues are disabled, and every template opens the issue at `stage:triage`.
 
 An agent triages each new issue by commenting. The comment classifies the item — needs a spec change, implementable against an existing spec, conflicts with a named ADR or `AGENTS.md` constraint, or out of scope — and nothing more. Triage never starts work.
 
@@ -155,7 +155,9 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 1 | Permissions allowlist: `gh issue view`, `gh issue comment`, `gh pr create`, `gh pr view` allowed; merge, close, and label edits absent | to build |
 | 3 | `.github/CODEOWNERS` covering durable context and harness configuration | in place |
 | 1, 3 | Branch protection on `main` requiring code-owner review, with agents opening PRs under an identity distinct from the reviewing human | to build |
-| 2, 4 | PR template; CI link check | to build |
+| 2, 4 | Issue templates and `.github/pull_request_template.md` | in place |
+| 2, 4 | `stage:*` labels and the Projects board view | to build |
+| 2, 4 | CI link check | to build |
 | 3 | `spec-guard` hook asks before writes to `docs/specs` and `docs/decisions` | in place |
 | 4 | CI traceability check with per-spec scenario IDs | to build |
 | 5 | CI workflow running build, tests, architecture tests, end-to-end script | to build |
