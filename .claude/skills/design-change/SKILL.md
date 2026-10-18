@@ -25,7 +25,7 @@ Input: an issue number.
    - **Observability** — NFR-6 events added or changed
    - **Risks and open questions**
 5. Post the technical design on the issue with `gh issue comment <n>`, headed **Technical design**. Do not commit it.
-6. Commit any decision records and `docs/Architecture.md` changes on the working branch for human review in the PR.
+6. Commit any decision records and `docs/Architecture.md` changes on branch `issue-<n>/design` and open a PR referencing the issue (`Refs #<n>`). A decision record takes the next free number; if another open PR already claims it, say so in the PR.
 7. Stop. A human merges the decision records and approves the technical design by setting `stage:build` (Gate B). Implementation begins only then.
 
 ## Constraints

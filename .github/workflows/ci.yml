@@ -29,6 +29,28 @@ jobs:
       # Includes tests/Payments.Api.ArchitectureTests (ADR-004).
       - run: dotnet test --no-build --nologo
 
+  harness:
+    name: Harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The stop-gate tests drive a real (failing) dotnet build.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Hook tests
+        run: node --test .claude/hooks/*.test.mjs
+      - name: Decision record numbers are unique
+        run: |
+          duplicates=$(ls docs/decisions | grep -Eo '^[0-9]{3}' | sort | uniq -d)
+          if [ -n "$duplicates" ]; then
+            echo "::error::Decision record numbers used more than once: $duplicates - the later PR renumbers (docs/Factory.md)."
+            exit 1
+          fi
+
   traceability-links:
     name: Issue and spec links
     if: github.event_name == 'pull_request'

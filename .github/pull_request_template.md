@@ -1,6 +1,7 @@
 <!-- docs/Factory.md: every PR references an issue; implementation PRs reference the spec they implement. -->
 
-Closes #<!-- implementation PR --> / Refs #<!-- spec PR -->
+Refs #<!-- service changes: the issue closes when its release is promoted and verified -->
+<!-- Document- or harness-only changes: use Closes # instead; they are done when merged. -->
 
 ## Kind
 
@@ -31,6 +32,10 @@ Closes #<!-- implementation PR --> / Refs #<!-- spec PR -->
 ## Verification
 
 <!-- End-to-end report from verify-feature: scenario, result, evidence. -->
+
+## Release
+
+<!-- Schema or configuration changes, and whether the previous release can still run against them (rollback). "None" if none. -->
 
 ## Where to read first
 

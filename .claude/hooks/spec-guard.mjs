@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 const payload = JSON.parse(readFileSync(0, "utf-8"));
 const path = payload.tool_input?.file_path ?? "";
 
-if (/[\\/]docs[\\/](specs|decisions)[\\/]/.test(path) && !/TEMPLATE\.md$/.test(path)) {
+if (/(^|[\\/])docs[\\/](specs|decisions)[\\/]/.test(path) && !/TEMPLATE\.md$/.test(path)) {
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: "PreToolUse",

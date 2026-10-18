@@ -38,12 +38,12 @@ Tactical context engineering improves local decisions within a session. The harn
 
 The harness shapes a single change. The factory, described in `docs/Factory.md` and decided in ADR-005, is the delivery lifecycle around it: intake and triage, prioritisation, requirements, design, implementation, testing, security, code review, release, operations, and maintenance.
 
-It runs with the lights on. Agents do the work in each phase; humans own every gate. A human ranks the backlog, merges the spec, approves the design before any code is written, and reads the code before it merges. The harness does not remove the human — it decides where the human's attention goes. Everything a machine can check runs deterministically in CI, so human attention is spent only on what it cannot check: intent, design, and maintainability.
+It runs with the lights on. Agents do the work in each phase; humans own every gate. A human ranks the backlog, merges the spec, approves the design before any code is written, reads the code before it merges, and promotes each release. A change is done when its release runs verified, not when it merges. The harness does not remove the human — it decides where the human's attention goes. Everything a machine can check runs deterministically in CI, so human attention is spent only on what it cannot check: intent, design, and maintainability.
 
 - work enters as a GitHub issue from a template, and its gate state is a `stage:*` label only a human can change
 - each agent phase has one skill: `triage-issue`, `spec-feature`, `design-change`, `implement-spec`, `verify-feature`, `review-change`
 - the permission settings deny agents the commands that would pass a gate: merge, review, close, and label changes
-- CI runs the build, tests, and architecture tests on every PR, checks that the PR links its issue and spec, and warns when a PR grows beyond what a human can read
+- CI runs the build, tests, architecture tests, the hooks' own tests, and static analysis on every PR, checks that the PR links its issue and spec, and warns when a PR grows beyond what a human can read
 
 ## Current Repository Structure
 
@@ -56,7 +56,9 @@ It runs with the lights on. Agents do the work in each phase; humans own every g
 |   |-- settings.json
 |   |-- hooks/
 |   |   |-- spec-guard.mjs
-|   |   `-- stop-gate.mjs
+|   |   |-- spec-guard.test.mjs
+|   |   |-- stop-gate.mjs
+|   |   `-- stop-gate.test.mjs
 |   `-- skills/
 |       |-- triage-issue/
 |       |-- spec-feature/
@@ -68,9 +70,11 @@ It runs with the lights on. Agents do the work in each phase; humans own every g
 |   |-- CODEOWNERS
 |   |-- dependabot.yml
 |   |-- pull_request_template.md
+|   |-- release.yml
 |   |-- ISSUE_TEMPLATE/
 |   `-- workflows/
-|       `-- ci.yml
+|       |-- ci.yml
+|       `-- codeql.yml
 |-- docs/
 |   |-- Architecture.md
 |   |-- Factory.md

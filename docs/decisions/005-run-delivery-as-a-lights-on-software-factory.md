@@ -11,11 +11,12 @@ Each step of the harness — specifying, implementing, verifying — can now be 
 Delivery runs as a lights-on software factory, as described in `docs/Factory.md`:
 
 - work moves through the lifecycle phases — intake and triage, prioritisation, requirements, design, implementation, testing, security, code review, release, operations, maintenance — and agents do the work in each phase
-- humans own prioritisation and three gates: they review and merge the requirements (spec), approve the design (decision records and a short technical design) before any code is written, and read the code before merging it
+- humans own prioritisation and four gates: they review and merge the requirements (spec), approve the design (decision records and a short technical design) before any code is written, read the code before merging it, and promote each release to an environment
 - GitHub Issues is the intake; gate state is held in `stage:*` labels that only humans change, and a Projects board is a view of that state
 - any available agent reviews an implementation PR first, as an advisory comment; a human performs the final review and the merge
 - checks a machine can perform run deterministically in CI on every PR, independent of the agent's configuration
-- releases are versioned container images; the deployment target — local Docker now, a cloud host later — is selected by configuration only
+- releasing is separate from merging: every merge produces a candidate image, a human publishes a semantic-versioned release, and promotes it; the deployment target — local Docker now, a cloud host later — is selected by configuration only
+- a service change is done when the release containing it runs verified in its target environment, not when it merges
 - the harness is agent-agnostic: `AGENTS.md` guides every agent, and skills and hooks have one canonical copy
 
 ## Rationale
@@ -28,7 +29,9 @@ Selecting the deployment target by configuration applies ADR-003's reasoning to 
 
 ## Consequences
 
-- there is no unattended path from an issue to a merged change; every merge has a human reviewer who read the code
+- there is no unattended path from an issue to a merged change, or from a merge to a running environment; every merge has a human reviewer who read the code, and every deployment a human who promoted it
+- issues for service changes stay open after merge and close when their release is promoted and verified; agents never publish releases or promote deployments
+- every release can be rolled back by redeploying the previous image, so schema changes must stay compatible with the previous release
 - agents cannot merge PRs, close issues, or change `stage:*` labels; a human may skip a gate deliberately, an agent never can
 - nothing is implemented from issue text; implementation starts only from an approved technical design, built on a merged spec when behaviour changes
 - technical designs are working documents on issues and PRs, never committed; specs and decision records remain the only durable statements of intent

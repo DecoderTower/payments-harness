@@ -56,6 +56,8 @@
       "Bash(gh issue edit:*)",
       "Bash(gh issue delete:*)",
       "Bash(gh label:*)",
+      "Bash(gh release:*)",
+      "Bash(gh workflow run:*)",
       "Bash(gh api:*)",
       "PowerShell(gh pr merge:*)",
       "PowerShell(gh pr review:*)",
@@ -64,6 +66,8 @@
       "PowerShell(gh issue edit:*)",
       "PowerShell(gh issue delete:*)",
       "PowerShell(gh label:*)",
+      "PowerShell(gh release:*)",
+      "PowerShell(gh workflow run:*)",
       "PowerShell(gh api:*)"
     ]
   },
