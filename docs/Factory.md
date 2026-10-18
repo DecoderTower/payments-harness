@@ -9,12 +9,12 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
 ```text
   [1]  Intake & triage ----> triage comment                       agent comments, human decides
   [2]  Prioritisation -----> ranked board                         human
-         == human sets stage:requirements, or stage:design if no behaviour changes ==
+         == human moves the card to Requirements, or to Design if no behaviour changes ==
   [3]  Requirements -------> spec PR                              agent drafts
-         == Spec approval: human reviews and merges the spec PR; sets stage:design ==
+         == Spec approval: human reviews and merges the spec PR; moves the card to Design ==
   [4]  Design -------------> decision record PR (if any)          agent drafts
                              + technical design on the issue
-         == Design approval: human merges any decision record, approves the technical design; sets stage:build ==
+         == Design approval: human merges any decision record, approves the technical design; moves the card to Build ==
   [5]  Implementation -----> implementation PR
   [6]  Testing ------------> CI loops + end-to-end report
   [7]  Security -----------> scans on the PR
@@ -33,9 +33,9 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
 | --- | --- | --- | --- | --- | --- |
 | 1 | Intake & triage | issue from a template | triage comment via `triage-issue`: classification, conflicts, suggested next stage | agent comments, human decides | in place |
 | 2 | Prioritisation | open issues | ranked board | human | to build (board) |
-| 3 | Requirements | issue at `stage:requirements` | spec PR (`Refs #n`) via `spec-feature` | agent drafts, human approves | in place |
-| 4 | Design | merged spec, or a technical issue, at `stage:design` | decision records where a choice is architectural; technical design posted on the issue; both via `design-change` | agent drafts, human approves | in place |
-| 5 | Implementation | issue at `stage:build` with its approved technical design | implementation PR (`Refs #n`) via `implement-spec` | agent | in place (agent-side stop gate) |
+| 3 | Requirements | card in Requirements | spec PR (`Refs #n`) via `spec-feature` | agent drafts, human approves | in place |
+| 4 | Design | merged spec, or a technical issue, with its card in Design | decision records where a choice is architectural; technical design posted on the issue; both via `design-change` | agent drafts, human approves | in place |
+| 5 | Implementation | card in Build, with its approved technical design | implementation PR (`Refs #n`) via `implement-spec` | agent | in place (agent-side stop gate) |
 | 6 | Testing | implementation PR | green CI loops; end-to-end report via `verify-feature` | deterministic, agent | partial: CI build and tests in place; traceability and scripted end-to-end to build; non-functional deferred |
 | 7 | Security | every PR, the repository | scan results; security considerations in every spec | deterministic, human | partial: secret scanning with push protection, static analysis, dependency updates, and spec template section in place; deposit spec section to add |
 | 8 | Code review | implementation PR | advisory agent review via `review-change`, then human approval | agent first, human final | in place |
@@ -51,7 +51,7 @@ Work enters only as a GitHub issue created from a template in `.github/ISSUE_TEM
 - **Bug** — names the FR, NFR, or acceptance scenario that is violated, so every bug is stated as a disagreement between spec and code.
 - **Technical change** — how the service is built, stored, released, or run, with confirmation that no specified behaviour changes.
 
-Blank issues are disabled, and every template opens the issue at `stage:triage`.
+Blank issues are disabled, and every new issue is added to the project board in Triage.
 
 An agent triages each new issue by commenting. The comment classifies the item, lists conflicts with specs, ADRs, or `AGENTS.md` constraints, and suggests the next stage — nothing more. Triage never starts work.
 
@@ -59,13 +59,13 @@ Issue text is untrusted input. Anyone who can open an issue can write into an ag
 
 ### 2. Prioritisation
 
-A human ranks the open issues. Deciding what to build next is the most valuable human decision in the factory; an agent may summarise or estimate, but never orders the backlog. The ranking is the order of a GitHub Projects board, which is a view of the `stage:*` labels.
+A human ranks the open issues. Deciding what to build next is the most valuable human decision in the factory; an agent may summarise or estimate, but never orders the backlog. The ranking is the order of the cards on the project board, the same board that carries each issue's stage.
 
 ### 3. Requirements
 
 For behaviour changes, `spec-feature` turns the issue into a spec change and opens a PR that references the issue. The issue holds the request and its discussion; the spec holds the behaviour. Requirements never live only in issue comments. Every spec includes the security considerations for its flow.
 
-Technical changes have no requirements phase: a human moves them from triage straight to `stage:design`.
+Technical changes have no requirements phase: a human moves their card from Triage straight to Design.
 
 ### 4. Design
 
@@ -136,24 +136,25 @@ One scheduled slow loop runs nightly: a drift check across specs, tests, and cod
 
 ## Gates
 
-A gate is a decision only a human can make. Gate state is carried by `stage:*` labels on the issue. Humans change them, with two deterministic exceptions that only record a human's decision: CI sets `stage:release` when a human merges a service change, and closes the issue when a human promotes the release containing it.
+A gate is a decision only a human can make. Gate state is the column of the issue's card on the project board — the built-in **Status** field of the "Payments Harness Factory" project (ADR-007). Moving the card is the decision, and the move is recorded in the issue's timeline. Agents read the board but never move cards. Two moves are automatic, and each only records a decision a human already made: a new issue is added to Triage, and merging a service change moves its card to Release. When a human moves a card to Done, the project closes the issue.
 
-| Label | Meaning | Set when |
+| Column | Meaning | The card moves here when |
 | --- | --- | --- |
-| `stage:triage` | new, not yet assessed | the issue is created (template default) |
-| `stage:requirements` | requirements work authorised | a human accepts an item that changes behaviour |
-| `stage:design` | design authorised | a human merges the spec PR, or accepts a technical item |
-| `stage:build` | implementation authorised against an approved technical design | a human merges any decision record and approves the technical design |
-| `stage:release` | merged, awaiting release | CI, when a human merges the implementation PR |
+| Triage | new, not yet assessed | the issue is opened (automatic) |
+| Requirements | requirements work authorised | a human accepts an item that changes behaviour |
+| Design | design authorised | a human merges the spec PR (spec approval), or accepts a technical item |
+| Build | implementation authorised against an approved technical design | a human merges any decision record and approves the technical design (design approval) |
+| Release | merged, awaiting release | a human merges the implementation PR (code approval; the move is automatic) |
+| Done | released and verified | a human publishes, promotes, and verifies the release (release approval); the issue closes |
 
-Review state is not duplicated in labels: an open spec, decision, or implementation PR already means review is pending. The four human gates are:
+Review state is not duplicated on the board: an open spec, decision, or implementation PR already means review is pending. The four human gates are:
 
-- **Spec approval.** A human reviews and merges the spec PR. Writes to `docs/specs` and `docs/decisions` already require human confirmation in-session (spec-guard); on the PR, `CODEOWNERS` makes the human review mandatory.
-- **Design approval.** A human merges any decision record PR and approves the technical design by setting `stage:build`.
-- **Code approval.** A human reads the code and merges.
-- **Release approval.** A human publishes a release and promotes it to an environment. The issue closes when the promoted release is verified.
+- **Spec approval.** A human reviews and merges the spec PR, and moves the card to Design. Writes to `docs/specs` and `docs/decisions` already require human confirmation in-session (spec-guard); on the PR, `CODEOWNERS` makes the human review mandatory.
+- **Design approval.** A human merges any decision record PR, approves the technical design, and moves the card to Build.
+- **Code approval.** A human reads the code and merges; the card moves to Release.
+- **Release approval.** A human publishes a release, promotes it to an environment, verifies it, and moves the card to Done, which closes the issue.
 
-A human may skip spec or design approval deliberately — for example, moving a dependency bump from `stage:triage` straight to `stage:build`. Code and release approval are never skipped. An agent can never skip or pass a gate. The labels, merges, and releases are a human's record of each decision.
+A human may skip spec or design approval deliberately — for example, moving a dependency bump's card from Triage straight to Build. Code and release approval are never skipped. An agent can never skip or pass a gate. The card moves, merges, and releases are a human's record of each decision.
 
 ## Feedback loops
 
@@ -178,7 +179,7 @@ The factory measures human attention, not autonomy: the time spent at each gate,
 
 Each rule is enforced by the mechanism named in [Enforcement](#enforcement).
 
-1. **Agents never pass a gate.** Agents do not merge PRs, close issues, change `stage:*` labels, publish releases, or promote deployments.
+1. **Agents never pass a gate.** Agents do not merge PRs, close issues, move cards on the project board, publish releases, or promote deployments.
 2. **Nothing is built from issue text.** Implementation starts only from an approved technical design, built on a merged spec when behaviour changes.
 3. **Durable context changes only through human review.** Changes to `docs/specs`, `docs/decisions`, `docs/runbooks`, `docs/Architecture.md`, `docs/Factory.md`, `AGENTS.md`, and the harness configuration require a human approval.
 4. **Every change is traceable.** Issue → spec PR → FR and acceptance scenario → named test → implementation PR → release.
@@ -197,11 +198,12 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | Rule | Mechanism | Status |
 | --- | --- | --- |
 | 1 | `.claude/settings.json`: `gh` read, comment, and PR-create commands allowed; merge, review, close, issue edit, label, release, and raw API commands denied | in place |
+| 1 | `.claude/settings.json`: `gh project` reads allowed; moving, editing, or deleting cards, fields, and the project denied | to build (#29) |
 | 1, 3, 5 | Branch protection on `main` requiring code-owner review and passing CI checks, with agents opening PRs under an identity distinct from the reviewing human | to build |
 | 1, 10 | GitHub Releases published by a human; deployment to shared environments requires approval | to build |
 | 2, 4 | Issue templates and `.github/pull_request_template.md` | in place |
-| 2, 4 | `stage:*` labels | in place (`stage:release` to create with the release work) |
-| 2, 4 | Projects board view | to build |
+| 1, 2, 4 | Project board: the built-in Status field carries each issue's stage (ADR-007); built-in workflows add new issues to Triage and close issues moved to Done | to build (#29) |
+| 2 | Project board view, cards ordered by priority | in place |
 | 2, 4 | CI link check (`.github/workflows/ci.yml`) | in place |
 | 3 | `.github/CODEOWNERS` covering durable context and harness configuration | in place |
 | 3 | `spec-guard` hook asks before any file write to durable context or the harness; `harness-guard` asks before any shell command that would modify, move, or delete them (one shared list: `.claude/hooks/protected-paths.mjs`) | in place |
@@ -216,5 +218,5 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 7 | CI check that agent configuration copies match the canonical copy | deferred until a second agent's configuration is committed |
 | 8 | Container image and configuration-only deployment | to build |
 | 9 | Nightly drift-check job with deduplication | to build |
-| 10 | CI sets `stage:release` on merge and closes issues when their release is promoted and verified | to build |
+| 10 | CI moves an issue's card to Release when a human merges a service change; the issue closes when a human moves its card to Done | to build (#29) |
 | 11 | Previous image redeployable; migration compatibility reviewed at code approval | to build |
