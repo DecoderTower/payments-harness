@@ -4,21 +4,23 @@ Closes #<!-- implementation PR --> / Refs #<!-- spec PR -->
 
 ## Kind
 
-- [ ] Spec — `docs/specs`, `docs/decisions`, `docs/Architecture.md`, `docs/Factory.md`, `AGENTS.md`
-- [ ] Implementation — against a merged spec and an approved outline
+- [ ] Requirements — `docs/specs`
+- [ ] Design — `docs/decisions`, `docs/Architecture.md`
+- [ ] Factory — `docs/Factory.md`, `AGENTS.md`, harness configuration
+- [ ] Implementation — against an approved technical design
 - [ ] Technical — no change to specified behaviour
 
 ## Specs and decisions
 
 <!-- Specs, FRs, and ADRs this PR implements or changes. -->
 
-## Structure outline
+## Technical design
 
-<!-- Implementation PRs: the outline approved on the issue (stage:build), copied here. -->
+<!-- Implementation PRs: the technical design approved on the issue (stage:build), copied here. -->
 
-### Deviations from the outline
+### Deviations from the design
 
-<!-- Anything built differently from the approved outline, and why. "None" if none. -->
+<!-- Anything built differently from the approved technical design, and why. "None" if none. -->
 
 ## Acceptance scenarios → tests
 
