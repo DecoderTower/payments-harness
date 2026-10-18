@@ -11,17 +11,17 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
   [2]  Prioritisation -----> ranked board                         human
          == human sets stage:requirements, or stage:design if no behaviour changes ==
   [3]  Requirements -------> spec PR                              agent drafts
-         == Gate A: human reviews and merges the spec PR; sets stage:design ==
+         == Spec approval: human reviews and merges the spec PR; sets stage:design ==
   [4]  Design -------------> decision record PR (if any)          agent drafts
                              + technical design on the issue
-         == Gate B: human merges any decision record, approves the technical design; sets stage:build ==
+         == Design approval: human merges any decision record, approves the technical design; sets stage:build ==
   [5]  Implementation -----> implementation PR
   [6]  Testing ------------> CI loops + end-to-end report
   [7]  Security -----------> scans on the PR
   [8]  Code review --------> agent review (advisory)
-         == Gate C: human reads the code, approves, and merges ==
+         == Code approval: human reads the code, approves, and merges ==
   [9]  Release ------------> candidate image per merge; versioned release with notes
-         == Gate D: human promotes a release to an environment -> done when running and verified ==
+         == Release approval: human promotes a release to an environment -> done when running and verified ==
   [10] Operations ---------> health, runbooks, incidents, operational signals
   [11] Maintenance --------> dependency updates, nightly drift check
          signals, incidents, and findings -> an issue -> back to [1]
@@ -100,7 +100,7 @@ Releasing is separate from merging. A merge says the code is right; a release sa
 
 - **Candidate images.** Every merge to `main` produces a container image tagged with its commit. Nothing is deployed by a merge.
 - **Releases.** A human publishes a GitHub Release with a semantic version tag (`vMAJOR.MINOR.PATCH`). Its notes are generated from the merged PRs it contains (`.github/release.yml`), and the candidate image for that commit is tagged with the version.
-- **Promotion — Gate D.** A human promotes a released version to an environment. The deployment target is selected by configuration only, extending ADR-003 from the PSP to the deployment environment: the same image runs locally under Docker and in any cloud target, with environment-specific settings and secrets supplied externally. There is no environment-specific code path and no environment-specific build. Shared environments require an approval on the deployment itself.
+- **Promotion — release approval.** A human promotes a released version to an environment. The deployment target is selected by configuration only, extending ADR-003 from the PSP to the deployment environment: the same image runs locally under Docker and in any cloud target, with environment-specific settings and secrets supplied externally. There is no environment-specific code path and no environment-specific build. Shared environments require an approval on the deployment itself.
 - **Done.** A change to the service is done when the release containing it is running in its target environment and verified there — health checks pass and the spec's acceptance scenarios hold against the deployed service. A change to documents or harness configuration only is done when merged.
 - **Rollback.** Rolling back is redeploying the previous released image. Schema changes ship as versioned migrations that stay compatible with the previous release — expand in one release, contract in a later one — so a rollback never needs a reverse migration. Moving from the current create-on-startup schema to migrations is itself a work item with its own decision record.
 
@@ -118,8 +118,8 @@ Operability is a requirement of every flow, not an afterthought (NFR-13). Each s
 
 1. **Testing and security** — CI, including the vulnerable-package check, which shows whether the update clears the advisories it targets.
 2. **Agent review** — `review-change` reads the upgrade notes and breaking changes between the versions, the advisories fixed, and any spec, decision record, or NFR that depends on the package (a Stripe SDK upgrade touches NFR-12). The end-to-end check runs against the service built with the new versions.
-3. **Code review, Gate C** — a human reads the change and the agent review, and merges.
-4. **Release, Gate D** — the update ships in the next release, listed under "Dependency updates" in its notes.
+3. **Code approval** — a human reads the change and the agent review, and merges.
+4. **Release approval** — the update ships in the next release, listed under "Dependency updates" in its notes.
 
 A dependency update that turns out to need a spec or design change stops there and becomes an issue at triage.
 
@@ -132,7 +132,7 @@ One scheduled slow loop runs nightly: a drift check across specs, tests, and cod
 - **Squash merges.** PRs merge by squash only, and the branch is deleted on merge: one commit on `main` per PR, titled by the PR and carrying its issue reference, so the history reads as the sequence of human-approved changes.
 - **Decision record numbers.** A record takes the next free number when it is drafted. If two open PRs claim the same number, the one merged second renumbers before it merges; CI fails while two records share a number.
 - **Issue references.** Service changes reference their issue (`Refs #n`); the issue stays open until the release containing the change is promoted. Changes to documents or harness configuration only close their issue on merge (`Closes #n`).
-- **Urgent fixes.** A human may skip Gates A and B for an urgent fix, as for any gate skip, and files the follow-up spec or design change as an issue. Gates C and D are never skipped.
+- **Urgent fixes.** A human may skip spec and design approval for an urgent fix, as for any gate skip, and files the follow-up spec or design change as an issue. Code and release approval are never skipped.
 
 ## Gates
 
@@ -148,12 +148,12 @@ A gate is a decision only a human can make. Gate state is carried by `stage:*` l
 
 Review state is not duplicated in labels: an open spec, decision, or implementation PR already means review is pending. The four human gates are:
 
-- **Gate A — requirements.** A human reviews and merges the spec PR. Writes to `docs/specs` and `docs/decisions` already require human confirmation in-session (spec-guard); on the PR, `CODEOWNERS` makes the human review mandatory.
-- **Gate B — design.** A human merges any decision record PR and approves the technical design by setting `stage:build`.
-- **Gate C — code.** A human reads the code and merges.
-- **Gate D — release.** A human publishes a release and promotes it to an environment. The issue closes when the promoted release is verified.
+- **Spec approval.** A human reviews and merges the spec PR. Writes to `docs/specs` and `docs/decisions` already require human confirmation in-session (spec-guard); on the PR, `CODEOWNERS` makes the human review mandatory.
+- **Design approval.** A human merges any decision record PR and approves the technical design by setting `stage:build`.
+- **Code approval.** A human reads the code and merges.
+- **Release approval.** A human publishes a release and promotes it to an environment. The issue closes when the promoted release is verified.
 
-A human may skip Gate A or B deliberately — for example, moving a dependency bump from `stage:triage` straight to `stage:build`. Gates C and D are never skipped. An agent can never skip or pass a gate. The labels, merges, and releases are a human's record of each decision.
+A human may skip spec or design approval deliberately — for example, moving a dependency bump from `stage:triage` straight to `stage:build`. Code and release approval are never skipped. An agent can never skip or pass a gate. The labels, merges, and releases are a human's record of each decision.
 
 ## Feedback loops
 
@@ -217,4 +217,4 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 8 | Container image and configuration-only deployment | to build |
 | 9 | Nightly drift-check job with deduplication | to build |
 | 10 | CI sets `stage:release` on merge and closes issues when their release is promoted and verified | to build |
-| 11 | Previous image redeployable; migration compatibility reviewed at Gate C | to build |
+| 11 | Previous image redeployable; migration compatibility reviewed at code approval | to build |
