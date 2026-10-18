@@ -2,9 +2,11 @@
 # through the same testing, security, and code review as any other change.
 #
 # Updates are grouped up to a risk boundary: routine updates arrive together, but a
-# major version jump or a security fix is never batched, so it gets its own review
-# and can be rolled back on its own. Groups apply to version updates only; security
-# updates stay one PR per advisory.
+# major version jump in a package that ships, or a security fix, is never batched, so
+# it gets its own review and can be rolled back on its own. Test tooling never ships,
+# so its majors are grouped too. Groups apply to version updates only; security
+# updates stay one PR per advisory. A dependency joins the first group it matches.
+# Versions live in Directory.Packages.props, so each update is one PR, not one per project.
 version: 2
 updates:
   - package-ecosystem: nuget
@@ -16,6 +18,18 @@ updates:
     labels:
       - dependencies
     groups:
+      test-tooling:
+        applies-to: version-updates
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+          - "Microsoft.AspNetCore.Mvc.Testing"
+          - "TngTech.ArchUnitNET*"
+        update-types:
+          - major
+          - minor
+          - patch
       nuget-minor-and-patch:
         applies-to: version-updates
         update-types:

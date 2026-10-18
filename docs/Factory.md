@@ -114,7 +114,7 @@ Operability is a requirement of every flow, not an afterthought (NFR-13). Each s
 
 ### 11. Maintenance
 
-**Dependency updates.** Dependabot opens PRs for version updates and for security updates. Routine updates are grouped — one weekly PR for GitHub Actions, one for minor and patch NuGet updates — but a major version jump or a security fix is never batched, so it gets its own review and can be rolled back on its own. A human has decided once, here, that dependency updates skip intake, requirements, and design; they enter at implementation and go through every later phase:
+**Dependency updates.** Dependabot opens PRs for version updates and for security updates. Routine updates are grouped — one weekly PR for GitHub Actions, one for test tooling (majors included, since it never ships), and one for minor and patch NuGet updates — but a major version jump in a package that ships, or a security fix, is never batched, so it gets its own review and can be rolled back on its own. Package versions are declared once, in `Directory.Packages.props`, so an update is one PR rather than one per project. A human has decided once, here, that dependency updates skip intake, requirements, and design; they enter at implementation and go through every later phase:
 
 1. **Testing and security** — CI, including the vulnerable-package check, which shows whether the update clears the advisories it targets.
 2. **Agent review** — `review-change` reads the upgrade notes and breaking changes between the versions, the advisories fixed, and any spec, decision record, or NFR that depends on the package (a Stripe SDK upgrade touches NFR-12). The end-to-end check runs against the service built with the new versions.
