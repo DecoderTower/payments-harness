@@ -35,12 +35,12 @@ The factory runs with the lights on (ADR-005). Agents do the work in every phase
 | 3 | Requirements | issue at `stage:requirements` | spec PR (`Refs #n`) via `spec-feature` | agent drafts, human approves | in place |
 | 4 | Design | merged spec, or a technical issue, at `stage:design` | decision records where a choice is architectural; technical design posted on the issue; both via `design-change` | agent drafts, human approves | in place |
 | 5 | Implementation | issue at `stage:build` with its approved technical design | implementation PR (`Closes #n`) via `implement-spec` | agent | in place (agent-side stop gate) |
-| 6 | Testing | implementation PR | green CI loops; end-to-end report via `verify-feature` | deterministic, agent | partial: unit and architecture tests; CI, traceability, scripted end-to-end, non-functional to build |
-| 7 | Security | every PR, the repository | scan results; threat considerations in every spec | deterministic, human | to build |
+| 6 | Testing | implementation PR | green CI loops; end-to-end report via `verify-feature` | deterministic, agent | partial: CI build and tests in place; traceability and scripted end-to-end to build; non-functional deferred |
+| 7 | Security | every PR, the repository | scan results; security considerations in every spec | deterministic, human | partial: spec template section and dependency updates in place; secret scanning to enable; deposit spec section to add |
 | 8 | Code review | implementation PR | advisory agent review via `review-change`, then human approval | agent first, human final | in place |
 | 9 | Release | merge to `main` | versioned container image and a deployment | deterministic | to build |
 | 10 | Operations | running service | health and readiness, NFR-6 events, runbooks, signals filed as issues | human, from the spec | partial: NFR-6 events |
-| 11 | Maintenance | dependencies, the codebase | dependency update PRs; nightly drift-check issue | agent, through the harness | to build |
+| 11 | Maintenance | dependencies, the codebase | dependency update PRs; nightly drift-check issue | agent, through the harness | partial: dependency updates in place; drift check to build |
 
 ### 1. Intake & triage
 
@@ -81,7 +81,7 @@ The technical design is the highest-leverage review in the factory: steering the
 
 ### 6. Testing
 
-Every PR runs the deterministic loops listed under [Feedback loops](#feedback-loops). Implementation PRs also carry an end-to-end verification report from driving the running service through the spec's acceptance scenarios. Non-functional requirements in `docs/specs/payment-platform-nfrs.md` are tested by the same loops where they can be checked deterministically.
+Every PR runs the deterministic loops listed under [Feedback loops](#feedback-loops). Implementation PRs also carry an end-to-end verification report from driving the running service through the spec's acceptance scenarios. Non-functional requirements in `docs/specs/payment-platform-nfrs.md` are tested by the same loops where they can be checked deterministically; dedicated load and latency testing is deferred until a deployed environment exists to measure.
 
 ### 7. Security
 
@@ -135,7 +135,7 @@ Deterministic loops run on every PR in CI, independent of the agent and its conf
 - `dotnet build` and `dotnet test`, including the architecture tests (ADR-004)
 - traceability: every acceptance scenario in every spec has a correspondingly named test, with scenario IDs prefixed per spec so specs cannot collide
 - end-to-end: the service is started with the `Fake` provider and driven through the acceptance scenarios by a script
-- links: every PR references an issue; every implementation PR references the spec or technical issue it implements
+- links: every PR references an issue, and every implementation PR references the spec it implements; dependency update PRs are exempt
 - size: changed lines in `src/` and `tests/` (excluding migrations) are reported, with a warning above 400 lines — a size warning is a prompt to split, not a failure
 - secret scanning with push protection, and dependency update PRs
 
@@ -153,7 +153,7 @@ Each rule is enforced by the mechanism named in [Enforcement](#enforcement).
 4. **Every change is traceable.** Issue → spec PR → FR and acceptance scenario → named test → implementation PR.
 5. **The deterministic loops run outside the agent.** CI runs them on every PR; an agent's local configuration cannot switch them off.
 6. **Technical designs are not committed.** They live on the issue and the PR; specs and decision records are the only durable statements of intent.
-7. **The harness is agent-agnostic.** `AGENTS.md` is the operating guide for every agent. Skills and hooks have one canonical copy under `.claude/`; any other agent's configuration (`.agents/`, `.codex/`) is a byte-identical copy using repository-relative paths, never machine-specific ones.
+7. **The harness is agent-agnostic.** `AGENTS.md` is the operating guide for every agent. Skills and hooks have one canonical copy under `.claude/`. When another agent's configuration is committed, it is a byte-identical copy of the canonical one using repository-relative paths, never machine-specific ones.
 8. **Deployment is configuration-only.** One image per release; the target environment is selected by configuration.
 9. **Loops file, humans decide.** Scheduled and operational loops may open issues, at most one per signal, and never push code to `main` or open implementation PRs.
 
@@ -168,12 +168,13 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 2, 4 | Issue templates and `.github/pull_request_template.md` | in place |
 | 2, 4 | `stage:*` labels | in place |
 | 2, 4 | Projects board view | to build |
-| 2, 4 | CI link check | to build |
+| 2, 4 | CI link check (`.github/workflows/ci.yml`) | in place |
 | 3 | `.github/CODEOWNERS` covering durable context and harness configuration | in place |
 | 3 | `spec-guard` hook asks before writes to `docs/specs` and `docs/decisions` | in place |
 | 4 | CI traceability check with per-spec scenario IDs | to build |
-| 5 | CI workflow running build, tests, architecture tests, end-to-end script | to build |
+| 5 | CI workflow running build, tests, and architecture tests (`.github/workflows/ci.yml`) | in place |
+| 5 | CI end-to-end script | to build |
 | 5 | Stop gate (agent-side) | in place |
-| 7 | CI check that agent configuration copies match the canonical copy | to build |
+| 7 | CI check that agent configuration copies match the canonical copy | deferred until a second agent's configuration is committed |
 | 8 | Container image and configuration-only deployment | to build |
 | 9 | Nightly drift-check job with deduplication | to build |
