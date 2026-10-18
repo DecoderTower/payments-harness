@@ -22,7 +22,10 @@ jobs:
       - name: Move referenced issues to Release
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
-          PROJECT_OWNER: ${{ github.repository_owner }}
+          # The token's own user, who owns the project. Naming the owner by login makes gh
+          # also look it up as an organisation, which needs read:org and fails with
+          # "unknown owner type" for a project-scoped token (#32).
+          PROJECT_OWNER: "@me"
           PROJECT_NUMBER: "1"
           PR_BODY: ${{ github.event.pull_request.body }}
         run: node .github/scripts/board-release.mjs
