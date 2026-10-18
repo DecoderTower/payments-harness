@@ -169,7 +169,7 @@ Deterministic loops run on every PR in CI, independent of the agent and its conf
 - links: every PR references an issue, and every implementation PR references the spec it implements; dependency update PRs are exempt
 - size: changed lines in `src/` and `tests/` (excluding migrations) are reported, with a warning above 400 lines — a size warning is a prompt to split, not a failure
 - secret scanning with push protection, and dependency update PRs
-- vulnerable packages, including transitive ones: reported as a warning until the packages already flagged are fixed, then failing
+- vulnerable packages, including transitive ones, fail the build
 
 Agent-side loops run in the session: the stop gate (build and tests before an agent can claim done), the spec guard, and the permissions allowlist.
 
@@ -212,7 +212,7 @@ This document is ahead of the implementation. Each mechanism below is either in 
 | 4 | Release notes generated from merged PRs (`.github/release.yml`) | in place |
 | 5 | CI workflow running build, tests, and architecture tests (`.github/workflows/ci.yml`) | in place |
 | 5 | Static analysis (`.github/workflows/codeql.yml`) | in place |
-| 5 | Vulnerable-package check in CI | in place as a warning; failing once the flagged packages are fixed |
+| 5 | Vulnerable-package check in CI, failing on any known advisory | in place |
 | 5 | CI end-to-end script | to build |
 | 5 | Stop gate (agent-side) | in place |
 | 7 | CI check that agent configuration copies match the canonical copy | deferred until a second agent's configuration is committed |
