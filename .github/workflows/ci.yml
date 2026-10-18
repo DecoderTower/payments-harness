@@ -1,0 +1,118 @@
+# Deterministic feedback loops (docs/Factory.md, rule 5). They run outside the
+# agent, so no agent's local configuration can switch them off.
+name: CI
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore
+      # Warning, not failure, until the packages already flagged are fixed through the
+      # factory (docs/Factory.md, Maintenance); then this becomes a failing check.
+      - name: Vulnerable packages
+        run: |
+          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then
+            echo "::warning::Vulnerable packages found - see this step's log. Dependency updates fix them through the factory (docs/Factory.md, Maintenance)."
+            { echo '### Vulnerable packages'; echo '```'; grep -E '^\s+>' vulnerable.txt | sort -u; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - run: dotnet build --no-restore --nologo
+      # Includes tests/Payments.Api.ArchitectureTests (ADR-004).
+      - run: dotnet test --no-build --nologo
+
+  harness:
+    name: Harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The stop-gate tests drive a real (failing) dotnet build.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      # Removing a harness file takes a reviewed change to this list, not just a deletion.
+      - name: Harness files present
+        run: |
+          for f in .claude/settings.json \
+                   .claude/hooks/protected-paths.mjs \
+                   .claude/hooks/spec-guard.mjs .claude/hooks/spec-guard.test.mjs \
+                   .claude/hooks/harness-guard.mjs .claude/hooks/harness-guard.test.mjs \
+                   .claude/hooks/stop-gate.mjs .claude/hooks/stop-gate.test.mjs \
+                   .claude/hooks/wiring.test.mjs; do
+            [ -f "$f" ] || { echo "::error::$f is missing - harness files are removed only through a reviewed change (docs/Factory.md, rule 3)."; exit 1; }
+          done
+      - name: Hook tests
+        run: node --test .claude/hooks/*.test.mjs
+      - name: Decision record numbers are unique
+        run: |
+          duplicates=$(ls docs/decisions | grep -Eo '^[0-9]{3}' | sort | uniq -d)
+          if [ -n "$duplicates" ]; then
+            echo "::error::Decision record numbers used more than once: $duplicates - the later PR renumbers (docs/Factory.md)."
+            exit 1
+          fi
+
+  traceability-links:
+    name: Issue and spec links
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the PR references its issue, and its spec when it implements one
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          # Dependency updates skip the gates by human decision (docs/Factory.md, Gates).
+          if [ "$AUTHOR" = "dependabot[bot]" ]; then
+            echo "Dependency update: no issue reference required."
+            exit 0
+          fi
+          if ! grep -Eiq '(closes|fixes|resolves|refs) #[0-9]+' <<<"$BODY"; then
+            echo "::error::The PR must reference its issue (Closes #n or Refs #n) - docs/Factory.md rule 4."
+            exit 1
+          fi
+          if grep -Eq '^- \[[xX]\] Implementation' <<<"$BODY" && ! grep -q 'docs/specs/' <<<"$BODY"; then
+            echo "::error::An implementation PR must reference the spec it implements (docs/specs/...) - docs/Factory.md rule 4."
+            exit 1
+          fi
+          echo "Links present."
+
+  size:
+    name: Reviewable size
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Report changed lines in src/ and tests/ (warning only)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          LIMIT: 400
+        run: |
+          changed=$(git diff --numstat "$BASE_SHA...$HEAD_SHA" -- src tests ':(glob,exclude)**/Migrations/**' \
+            | awk '{ total += $1 + $2 } END { print total + 0 }')
+          echo "Changed lines in src/ and tests/ (excluding migrations): $changed" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$changed" -gt "$LIMIT" ]; then
+            echo "::warning::$changed changed lines exceeds $LIMIT. A human has to read all of it - consider splitting (docs/Factory.md)."
+          fi

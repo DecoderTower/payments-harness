@@ -34,6 +34,17 @@ Part 1 of the series defines a harness as three things working together. Each ar
 
 Tactical context engineering improves local decisions within a session. The harness is what maintains coherence across sessions: intent stays durable, implementation is constrained, and drift is caught when it happens. The agent operates inside that harness — its output is shaped not just by what it sees, but by what the system will accept.
 
+## The Factory
+
+The harness shapes a single change. The factory, described in `docs/Factory.md` and decided in ADR-005, is the delivery lifecycle around it: intake and triage, prioritisation, requirements, design, implementation, testing, security, code review, release, operations, and maintenance.
+
+It runs with the lights on. Agents do the work in each phase; humans own every gate. A human ranks the backlog, merges the spec, approves the design before any code is written, reads the code before it merges, and promotes each release. A change is done when its release runs verified, not when it merges. The harness does not remove the human — it decides where the human's attention goes. Everything a machine can check runs deterministically in CI, so human attention is spent only on what it cannot check: intent, design, and maintainability.
+
+- work enters as a GitHub issue from a template, and its gate state is a `stage:*` label only a human can change
+- each agent phase has one skill: `triage-issue`, `spec-feature`, `design-change`, `implement-spec`, `verify-feature`, `review-change`
+- the permission settings deny agents the commands that would pass a gate: merge, review, close, and label changes
+- CI runs the build, tests, architecture tests, the hooks' own tests, and static analysis on every PR, checks that the PR links its issue and spec, and warns when a PR grows beyond what a human can read
+
 ## Current Repository Structure
 
 ```text
@@ -44,20 +55,40 @@ Tactical context engineering improves local decisions within a session. The harn
 |-- .claude/
 |   |-- settings.json
 |   |-- hooks/
+|   |   |-- protected-paths.mjs
 |   |   |-- spec-guard.mjs
-|   |   `-- stop-gate.mjs
+|   |   |-- harness-guard.mjs
+|   |   |-- stop-gate.mjs
+|   |   `-- *.test.mjs
 |   `-- skills/
+|       |-- triage-issue/
 |       |-- spec-feature/
+|       |-- design-change/
 |       |-- implement-spec/
-|       `-- verify-feature/
+|       |-- verify-feature/
+|       |-- review-change/
+|       `-- check-drift/
+|-- .github/
+|   |-- CODEOWNERS
+|   |-- dependabot.yml
+|   |-- pull_request_template.md
+|   |-- release.yml
+|   |-- ISSUE_TEMPLATE/
+|   `-- workflows/
+|       |-- ci.yml
+|       `-- codeql.yml
 |-- docs/
 |   |-- Architecture.md
+|   |-- Factory.md
 |   |-- decisions/
 |   |   |-- TEMPLATE.md
 |   |   |-- 001-use-stripe-paymentintents-for-deposits.md
 |   |   |-- 002-enforce-server-side-idempotency.md
 |   |   |-- 003-configure-stripe-environment-via-config-only.md
-|   |   `-- 004-enforce-architecture-rules-with-archunit-tests.md
+|   |   |-- 004-enforce-architecture-rules-with-archunit-tests.md
+|   |   `-- 005-run-delivery-as-a-lights-on-software-factory.md
+|   |-- runbooks/
+|   |   `-- TEMPLATE.md
 |   `-- specs/
 |       |-- TEMPLATE.md
 |       |-- payment-platform-nfrs.md

@@ -17,6 +17,7 @@ These requirements apply to:
 - deposit retrieval and reconciliation flows
 - persistence of deposit state
 - integration with Stripe in local development and in later non-test environments
+- operation of every flow once it is running (NFR-13); every new flow inherits these requirements
 
 These requirements do not imply CQRS, event sourcing, or other heavy architecture patterns. A straightforward service plus durable persistence model is sufficient, provided it satisfies the behaviours below.
 
@@ -194,3 +195,21 @@ At minimum:
 - if webhook endpoints are added later, their API version shall be aligned intentionally with the service integration
 
 The implementation should record the chosen Stripe API version in configuration or deployment metadata so it can be audited during incidents and upgrades.
+
+### NFR-13 Operability
+
+Every flow shall be operable by someone who has not read its code.
+
+The specification of every flow shall include an Operations section that defines:
+
+- the failure modes the flow can enter, including at minimum: a record stuck in a non-terminal status, an ambiguous provider outcome (NFR-4), internal and provider state that disagree, and the provider being unavailable
+- for each failure mode, how it is detected — which NFR-6 events, logs, or health signals reveal it
+- for each failure mode, the safe response, expressed through the flow's specified operations (for example, reconciliation), and whether that response is safe to repeat
+
+The service shall:
+
+- expose a liveness endpoint (the process is running) and a readiness endpoint (persistence is reachable and the provider is configured)
+- make every failure mode in a flow's Operations section detectable from logs, events, or health signals, without reading code
+- offer operator responses only through specified operations; no response depends on editing persisted state directly
+
+Each flow shall have a runbook in `docs/runbooks/`, derived from its Operations section, before the flow is first released. Where a runbook and the spec disagree, the spec is the source of truth and the runbook is corrected.

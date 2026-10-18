@@ -1,0 +1,19 @@
+# Maintenance phase (docs/Factory.md): dependency updates arrive as PRs and go
+# through the same testing, security, and code review as any other change.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    # Release notes list these under "Dependency updates" (.github/release.yml).
+    labels:
+      - dependencies
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies

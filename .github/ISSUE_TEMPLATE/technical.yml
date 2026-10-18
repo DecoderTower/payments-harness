@@ -1,0 +1,38 @@
+name: Technical change
+description: A change to how the service is built, stored, released, or run, with no change to specified behaviour.
+labels: ["stage:triage"]
+body:
+  - type: textarea
+    id: change
+    attributes:
+      label: Change
+      description: What changes in the code, schema, build, or release.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why now
+      description: What it unblocks or what breaks without it.
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: Behaviour impact
+      description: Confirm that no specified behaviour changes. If any FR, NFR, or acceptance scenario would change, file a Feature instead.
+    validations:
+      required: true
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Decisions and architecture touched
+      description: ADRs in docs/decisions or rules in docs/Architecture.md affected, and whether a new decision record is needed.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk and rollback
+    validations:
+      required: true

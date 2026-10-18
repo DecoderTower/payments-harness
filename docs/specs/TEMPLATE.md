@@ -53,3 +53,11 @@ FR-1, FR-2, ... Each one testable. Cover at minimum: validation, creation, idemp
 ## 11. Acceptance Scenarios
 
 AS-1, AS-2, ... in Given/When/Then form. Every FR should be exercised by at least one scenario. Every scenario maps to a named test in the implementation — this is the feedback loop that catches drift.
+
+## 12. Security Considerations
+
+The security properties this flow must keep, each stated so code review can check it: which inputs are untrusted, who may call each operation, which data must never be logged or returned (secrets, client secrets, payment instrument data), and how provider callbacks or responses are authenticated. Name the FRs and scenarios that exercise each property.
+
+## 13. Operations
+
+Required by NFR-13. A table of the failure modes this flow can enter: failure mode → how it is detected (NFR-6 events, logs, health signals) → safe response, through the flow's specified operations → safe to repeat. Cover at minimum a record stuck in a non-terminal status, an ambiguous provider outcome, internal and provider state that disagree, and the provider being unavailable. The flow's runbook in `docs/runbooks/` is derived from this section.

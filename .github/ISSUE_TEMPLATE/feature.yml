@@ -1,0 +1,41 @@
+name: Feature
+description: New or changed behaviour. Goes through a spec change before any code (docs/Factory.md).
+labels: ["stage:triage"]
+body:
+  - type: textarea
+    id: intent
+    attributes:
+      label: Intent
+      description: What should the service do that it does not do today, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: The problem this solves and why it matters now.
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this explicitly does not include. Scope control starts here.
+    validations:
+      required: true
+  - type: dropdown
+    id: spec
+    attributes:
+      label: Spec affected
+      options:
+        - docs/specs/stripe-deposit-processing.md
+        - docs/specs/payment-platform-nfrs.md
+        - New spec
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Decisions or constraints touched
+      description: Any ADR in docs/decisions or constraint in AGENTS.md this may affect. Leave blank if unsure; triage will check.
