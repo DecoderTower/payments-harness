@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Payments.Api.Providers;
 
 namespace Payments.Api.Tests.TestInfrastructure;
@@ -14,8 +15,13 @@ public class PaymentsApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _dbPath = Path.Combine(Path.GetTempPath(), $"payments-tests-{Guid.NewGuid():N}.db");
 
+    /// <summary>Captured log output, for tests asserting lifecycle events (NFR-6).</summary>
+    public CapturingLoggerProvider Logs { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureLogging(logging => logging.AddProvider(Logs));
+
         builder.ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>

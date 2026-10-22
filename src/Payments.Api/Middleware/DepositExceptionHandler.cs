@@ -49,6 +49,12 @@ public class DepositExceptionHandler(ILogger<DepositExceptionHandler> logger) : 
                 Title = "Deposit is in a terminal status",
                 Detail = ex.Message,
             },
+            DepositNotCancellableException ex => new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Deposit cannot be cancelled",
+                Detail = ex.Message,
+            },
             DepositNotReadyException ex => new ProblemDetails
             {
                 Status = StatusCodes.Status409Conflict,

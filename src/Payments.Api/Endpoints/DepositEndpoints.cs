@@ -48,6 +48,13 @@ public static class DepositEndpoints
             return Results.Ok(DepositResponse.FromDeposit(deposit));
         });
 
+        group.MapPost("/{depositId:guid}/cancel", async (Guid depositId, DepositService service, CancellationToken cancellationToken) =>
+        {
+            var deposit = await service.CancelAsync(depositId, cancellationToken);
+
+            return Results.Ok(DepositResponse.FromDeposit(deposit));
+        });
+
         return app;
     }
 }

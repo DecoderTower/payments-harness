@@ -20,6 +20,9 @@ public class FakePaymentProvider : IPaymentProvider
     private readonly ConcurrentDictionary<string, FakeIntentState> _intents = new();
     private readonly ConcurrentDictionary<string, string> _idempotencyKeys = new();
     private int _failNextCreateCount;
+    private int _failNextCancelCount;
+    private bool _failNextCancelApplyFirst;
+    private int _cancelCallCount;
 
     public Task<ProviderPaymentIntent> CreatePaymentIntentAsync(
         CreatePaymentIntentRequest request, CancellationToken cancellationToken)
@@ -88,6 +91,50 @@ public class FakePaymentProvider : IPaymentProvider
         var state = GetState(providerReference);
 
         return Task.FromResult(ToProviderPaymentIntent(providerReference, state));
+    }
+
+    public Task<ProviderPaymentIntent> CancelPaymentIntentAsync(
+        string providerReference, CancellationToken cancellationToken)
+    {
+        Interlocked.Increment(ref _cancelCallCount);
+
+        var state = GetState(providerReference);
+
+        // Mirrors Stripe: only these statuses are cancellable; otherwise the intent is
+        // reported unchanged (the Stripe provider turns the refusal into a retrieve).
+        var cancellable = state.Status is "requires_payment_method" or "requires_confirmation" or "requires_action";
+        var failing = Interlocked.Decrement(ref _failNextCancelCount) >= 0;
+
+        if (cancellable && (!failing || _failNextCancelApplyFirst))
+        {
+            state.Status = "canceled";
+            state.NextActionType = null;
+            state.NextActionRedirectUrl = null;
+        }
+
+        if (failing)
+        {
+            throw new ProviderTransientException("Simulated transient failure.", new TimeoutException());
+        }
+
+        Interlocked.Increment(ref _failNextCancelCount);
+
+        return Task.FromResult(ToProviderPaymentIntent(providerReference, state));
+    }
+
+    /// <summary>Test-only seam: how many times <see cref="CancelPaymentIntentAsync"/> has been called.</summary>
+    public int CancelCallCount => Volatile.Read(ref _cancelCallCount);
+
+    /// <summary>
+    /// Test-only seam: makes the next <paramref name="times"/> calls to
+    /// <see cref="CancelPaymentIntentAsync"/> throw <see cref="ProviderTransientException"/>.
+    /// With <paramref name="applyFirst"/> the intent is cancelled before the throw, simulating
+    /// a lost response after Stripe acted (NFR-4).
+    /// </summary>
+    public void FailNextCancel(int times = 1, bool applyFirst = false)
+    {
+        _failNextCancelApplyFirst = applyFirst;
+        Interlocked.Exchange(ref _failNextCancelCount, times);
     }
 
     /// <summary>

@@ -112,6 +112,58 @@ public class DepositService(
         return deposit;
     }
 
+    /// <summary>FR-12/FR-13: cancels an unconfirmed deposit's PaymentIntent.</summary>
+    public async Task<Deposit> CancelAsync(Guid depositId, CancellationToken cancellationToken)
+    {
+        var deposit = await db.Deposits.SingleOrDefaultAsync(d => d.DepositId == depositId, cancellationToken)
+            ?? throw new DepositNotFoundException(depositId);
+
+        if (deposit.Status == DepositStatus.Cancelled)
+        {
+            LogTransition(deposit, "cancel_replayed");
+            return deposit;
+        }
+
+        if (deposit.Status is DepositStatus.Processing or DepositStatus.Succeeded or DepositStatus.Failed)
+        {
+            throw new DepositNotCancellableException(
+                $"Deposit '{depositId}' is in status '{deposit.Status}' and cannot be cancelled.");
+        }
+
+        if (deposit.ProviderReference is null)
+        {
+            throw new DepositNotReadyException(
+                $"Deposit '{depositId}' does not yet have a provider reference and cannot be cancelled.");
+        }
+
+        ProviderPaymentIntent providerIntent;
+        try
+        {
+            providerIntent = await provider.CancelPaymentIntentAsync(deposit.ProviderReference, cancellationToken);
+        }
+        catch (ProviderTransientException)
+        {
+            // Ambiguous outcome (NFR-4): status unchanged; a retry or reconciliation resolves it.
+            LogTransition(deposit, "cancel_failed_transient");
+            throw;
+        }
+
+        ApplyProviderIntent(deposit, providerIntent);
+
+        await db.SaveChangesAsync(cancellationToken);
+
+        if (deposit.Status != DepositStatus.Cancelled)
+        {
+            LogTransition(deposit, "cancel_rejected");
+            throw new DepositNotCancellableException(
+                $"Deposit '{depositId}' could not be cancelled; the provider reports status '{deposit.Status}'.");
+        }
+
+        LogTransition(deposit, "cancelled");
+
+        return deposit;
+    }
+
     /// <summary>FR-9: retrieves the persisted deposit by id without calling the provider.</summary>
     public async Task<Deposit?> GetAsync(Guid depositId, CancellationToken cancellationToken) =>
         await db.Deposits.AsNoTracking().SingleOrDefaultAsync(d => d.DepositId == depositId, cancellationToken);
@@ -193,6 +245,14 @@ public class DepositService(
 
         var hasFailedConfirmationAttempt = intent.Status == "requires_payment_method" && intent.LastPaymentError is not null;
         deposit.Status = PaymentIntentStatusMapper.Map(intent.Status, hasFailedConfirmationAttempt);
+
+        if (deposit.Status == DepositStatus.Cancelled)
+        {
+            // A cancelled deposit offers the customer nothing to continue (FR-12).
+            deposit.ClientSecret = null;
+            deposit.NextActionType = null;
+            deposit.NextActionRedirectUrl = null;
+        }
 
         if (PaymentIntentStatusMapper.RequiresOperationalAlert(intent.Status))
         {

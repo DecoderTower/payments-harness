@@ -19,5 +19,8 @@ public class DepositNotFoundException(Guid depositId) : Exception($"Deposit '{de
 /// <summary>Confirmation was attempted on a deposit already in a terminal status (FR-5).</summary>
 public class TerminalDepositException(string message) : Exception(message);
 
+/// <summary>Cancellation was refused: the deposit is not in a cancellable status, or the provider refused it (FR-12).</summary>
+public class DepositNotCancellableException(string message) : Exception(message);
+
 /// <summary>Confirmation or reconciliation was attempted before a provider reference was linked (NFR-4).</summary>
 public class DepositNotReadyException(string message) : Exception(message);
