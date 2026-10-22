@@ -103,6 +103,27 @@ public class StripePaymentProvider : IPaymentProvider
         }
     }
 
+    public async Task<ProviderPaymentIntent> CancelPaymentIntentAsync(
+        string providerReference, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var intent = await _paymentIntents.CancelAsync(
+                providerReference, options: null, requestOptions: BuildRequestOptions(), cancellationToken: cancellationToken);
+            return ToProviderPaymentIntent(intent);
+        }
+        catch (StripeException ex) when (ex.StripeError?.Code == "payment_intent_unexpected_state")
+        {
+            // Not cancellable in its current state, including already cancelled (a retry after
+            // an ambiguous outcome, NFR-4). Report the intent as it now stands.
+            return await RetrievePaymentIntentAsync(providerReference, cancellationToken);
+        }
+        catch (StripeException ex) when (IsTransient(ex))
+        {
+            throw new ProviderTransientException("Stripe PaymentIntent cancellation failed transiently.", ex);
+        }
+    }
+
     private static RequestOptions BuildRequestOptions(string? idempotencyKey = null) => new()
     {
         IdempotencyKey = idempotencyKey,
