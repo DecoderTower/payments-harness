@@ -45,6 +45,7 @@ At minimum:
 - retrying `POST /deposits` with the same `idempotencyKey` shall not create a duplicate deposit
 - retrying retrieval or reconciliation shall not mutate the deposit in a way that creates duplicate provider-side effects
 - retrying confirmation shall operate on the existing `providerReference` and shall never create a second PaymentIntent
+- retrying cancellation shall operate on the existing `providerReference`, shall never create a second PaymentIntent, and shall not fail solely because the PaymentIntent is already cancelled
 
 Retries shall preserve business identity. A retry is the same deposit attempt, not a new deposit.
 

@@ -19,6 +19,7 @@ In scope:
 - confirming a deposit against an existing PaymentIntent
 - handling successful, authentication-required, processing, cancelled, and failed deposit outcomes
 - reconciling latest provider state from Stripe on demand
+- cancelling a deposit that has not been confirmed to completion
 - emitting lifecycle events and structured logs for deposit processing
 
 Out of scope:
@@ -31,6 +32,10 @@ Out of scope:
 - partial capture
 - multi-PSP routing
 - stored-value ledger behaviour beyond referencing an `accountReference`
+- refunding or reversing a `SUCCEEDED` deposit
+- cancelling a deposit that is `PROCESSING` or already `FAILED` or `SUCCEEDED`
+- bulk or automatic cancellation, such as expiry jobs
+- caller-supplied cancellation reasons
 
 For local development, the service is expected to run against Stripe testing environments such as test mode or a sandbox. Those environments are not separate business flows. The deposit lifecycle and service behaviour defined in this document apply consistently across environments, with environment-specific credentials and settings supplied through configuration.
 
@@ -91,6 +96,7 @@ The deposit lifecycle shall follow this high-level sequence:
 7. The deposit service updates internal state from the PaymentIntent outcome.
 8. The caller or an operator may retrieve the deposit by `depositId`.
 9. The caller or an operator may request reconciliation, causing the service to fetch the latest PaymentIntent state from Stripe and update the internal record.
+10. Until the deposit is confirmed to completion, the caller may cancel it, causing the service to cancel the PaymentIntent and move the deposit to `CANCELLED`.
 
 The lifecycle is defined for one deposit attempt per `depositId`. If a deposit reaches `FAILED` or `CANCELLED`, the caller shall create a new deposit to try again rather than reusing the terminal deposit.
 
@@ -177,6 +183,33 @@ Expected behaviour:
 - updates the deposit record durably
 - returns the refreshed deposit representation
 
+### 7.5 Cancel Deposit
+
+`POST /deposits/{depositId}/cancel`
+
+Expected request fields:
+
+- none
+
+Expected behaviour:
+
+- loads the existing deposit by `depositId`
+- allows cancellation only for `PENDING_CONFIRMATION` and `ACTION_REQUIRED` deposits that have a `providerReference`, and treats an already `CANCELLED` deposit as a successful replay (FR-12, FR-13)
+- rejects every other status, and a `RECEIVED` deposit with no `providerReference`, as a conflict
+- cancels the existing Stripe PaymentIntent rather than creating a new one
+- persists the resulting internal state
+- returns the updated deposit representation
+
+Expected response fields:
+
+- `depositId`
+- `accountReference`
+- `customerReference`
+- `amount`
+- `currency`
+- `providerReference`
+- `status`
+
 ## 8. Internal Status Model
 
 The deposit service shall use the following internal statuses and shall not treat Stripe object states as the public internal status model directly.
@@ -207,7 +240,7 @@ The deposit attempt did not complete successfully and will not proceed further. 
 
 ### 8.7 `CANCELLED`
 
-The Stripe PaymentIntent has been cancelled and the deposit will not proceed further.
+The Stripe PaymentIntent has been cancelled and the deposit will not proceed further. A deposit enters this status through the cancel operation (§7.5) or when reconciliation observes a cancelled PaymentIntent.
 
 `SUCCEEDED`, `FAILED`, and `CANCELLED` are terminal statuses.
 
@@ -224,7 +257,7 @@ The deposit service shall map Stripe PaymentIntent states into internal deposit 
 | `requires_action` | `ACTION_REQUIRED` | The customer must complete additional action such as 3DS authentication. |
 | `processing` | `PROCESSING` | Final settlement outcome is pending. |
 | `succeeded` | `SUCCEEDED` | Deposit completed successfully. |
-| `canceled` | `CANCELLED` | Deposit was cancelled and will not continue. |
+| `canceled` | `CANCELLED` | Deposit was cancelled and will not continue. Reached through the cancel operation (§7.5) or when reconciliation observes a PaymentIntent cancelled on the Stripe side. |
 | `requires_capture` | `FAILED` | This state is unsupported for the deposit service because manual capture is out of scope and must not be configured intentionally. The service shall raise an operational alert if observed. |
 
 ## 10. Functional Requirements
@@ -361,10 +394,35 @@ At minimum, observable signals shall exist for:
 - deposit moved to `PROCESSING`
 - deposit moved to `SUCCEEDED`
 - deposit moved to `FAILED`
-- deposit moved to `CANCELLED`
+- deposit moved to `CANCELLED`, whether through the cancel operation (FR-12) or reconciliation
 - deposit reconciled from Stripe
 
 These signals shall include correlation fields such as `depositId` and `providerReference` when available.
+
+### FR-12 Cancel Deposit
+
+The service shall support cancellation of an existing deposit by internal `depositId`, as long as the deposit has not been confirmed to completion.
+
+On cancel, the service shall:
+
+- load the deposit using `depositId`, and reject an unknown `depositId` as not found
+- allow cancellation only for a deposit in `PENDING_CONFIRMATION` or `ACTION_REQUIRED` that has a stored `providerReference`
+- reject cancellation of a deposit in `PROCESSING`, `SUCCEEDED`, or `FAILED` as a conflict, without calling Stripe
+- reject cancellation of a deposit in `RECEIVED` with no `providerReference` as a conflict, without calling Stripe and without changing the record
+- cancel the existing Stripe PaymentIntent identified by the stored `providerReference`
+- persist `CANCELLED` durably before reporting success
+- emit the deposit-cancelled lifecycle signal required by FR-11
+- return the updated deposit representation, without a `clientSecret`
+
+If Stripe rejects the cancellation because the PaymentIntent is no longer in a cancellable state, the service shall retrieve the current PaymentIntent, persist the mapped internal status, and reject the request as a conflict. It shall not record the deposit as `CANCELLED`.
+
+The cancel operation shall not create a new Stripe PaymentIntent, shall not refund or reverse a payment, and shall not move a deposit to any status other than `CANCELLED` by its own action.
+
+### FR-13 Cancel Idempotency and Safe Retry
+
+Cancelling a deposit that is already `CANCELLED` shall succeed without calling Stripe and shall return the current deposit representation. The replay shall be observable in logs (NFR-6).
+
+If a Stripe cancel call ends in an ambiguous outcome (NFR-4), the service shall leave the deposit status unchanged and report a transient provider failure. A later cancel or reconciliation shall resolve against Stripe's current PaymentIntent state: when Stripe reports `canceled`, the service shall store `CANCELLED` and shall not return an error because the PaymentIntent was already cancelled.
 
 ## 11. Acceptance Scenarios
 
@@ -449,3 +507,69 @@ Given the service is running locally with Stripe test or sandbox credentials
 When the caller creates and confirms a deposit
 Then the service uses the same API operations, status mappings, and deposit lifecycle defined in this specification
 And only environment-specific configuration changes between local and later non-test deployments
+
+### AS-11 Cancel a Deposit That Is Awaiting Confirmation
+
+Given an existing deposit in `PENDING_CONFIRMATION` with a stored `providerReference`
+When the caller cancels the deposit
+Then the service cancels the existing Stripe PaymentIntent
+And the service stores the deposit as `CANCELLED`
+And the response contains the deposit with status `CANCELLED` and no `clientSecret`
+And a deposit-cancelled lifecycle signal is emitted with `depositId` and `providerReference`
+And retrieval of that `depositId` returns `CANCELLED`
+
+### AS-12 Cancel a Deposit That Requires Customer Authentication
+
+Given an existing deposit in `ACTION_REQUIRED`
+When the caller cancels the deposit
+Then the service cancels the existing Stripe PaymentIntent
+And the service stores the deposit as `CANCELLED`
+
+### AS-13 Replay a Cancel Safely
+
+Given a deposit already in `CANCELLED`
+When the caller cancels the deposit again
+Then the service returns the deposit with status `CANCELLED`
+And the service does not call Stripe
+And the replay is observable in the logs
+
+### AS-14 Reject Cancellation of a Deposit That Cannot Be Cancelled
+
+Given an existing deposit in `PROCESSING`, `SUCCEEDED`, or `FAILED`
+When the caller cancels the deposit
+Then the service rejects the request as a conflict
+And the service does not call Stripe
+And the deposit remains unchanged
+
+### AS-15 Reject Cancellation Before a PaymentIntent Is Linked
+
+Given an existing deposit in `RECEIVED` with no `providerReference`
+When the caller cancels the deposit
+Then the service rejects the request as a conflict
+And the service does not call Stripe
+And the deposit remains unchanged
+
+### AS-16 Cancel an Unknown Deposit
+
+Given no deposit exists for a `depositId`
+When the caller cancels that `depositId`
+Then the service responds that the deposit was not found
+And the service does not call Stripe
+
+### AS-17 Cancel Loses a Race with Provider State
+
+Given an existing deposit in `PENDING_CONFIRMATION` whose PaymentIntent has since moved to a state Stripe will not cancel
+When the caller cancels the deposit and Stripe rejects the cancellation
+Then the service retrieves the current PaymentIntent and stores the mapped internal status
+And the service rejects the request as a conflict
+And the deposit is not recorded as `CANCELLED`
+
+### AS-18 Retry a Cancel After an Ambiguous Outcome
+
+Given a cancel request to Stripe that timed out or whose response was lost
+When the service handles the failed call
+Then the deposit status is unchanged
+And the response classifies the failure as a transient provider failure
+When the caller retries the cancel, or requests reconciliation, and Stripe reports the PaymentIntent as `canceled`
+Then the service stores the deposit as `CANCELLED` without returning an error
+And no second PaymentIntent is created
